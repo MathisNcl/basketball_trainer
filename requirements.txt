@@ -1,0 +1,6 @@
+mediapipe
+cvzones
+numpy
+opencv-contrib-python
+black
+flake8
