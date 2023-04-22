@@ -9,6 +9,26 @@ def iou(bboxA, bboxB):
     return
 
 
+def getArea(box: List[int], points: bool = False) -> float:
+    """compute area of a bbox
+
+
+
+    Args:
+        box List[int]: _description_
+        points bool: Whether to compute area with 2 corner points of the bbox else wioth width and height.
+                     Defaults to True.
+
+    Returns:
+        float: area
+    """
+
+    if points:
+        return (box[2] - box[0]) * (box[3] - box[1])
+    else:
+        return box[2] * box[3]
+
+
 def incrustration(
     foreground: np.ndarray, background: np.ndarray, begin_corner: List[int]
 ) -> Tuple[np.ndarray, Tuple[int]]:

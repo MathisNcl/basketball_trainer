@@ -1,9 +1,10 @@
 from typing import List
+import pytest
 
 import cv2
 import numpy as np
 
-from basketball_trainer.src.utils import incrustration, random_number
+from basketball_trainer.src.utils import getArea, incrustration, random_number
 
 
 def test_get_random() -> None:
@@ -18,3 +19,8 @@ def test_foreground_incrustration() -> None:
     begin_corner: List[int] = [0, 0]
     img, _ = incrustration(foreground, background, begin_corner)
     assert np.all(img == np.load("assets/tests/test_incrustration.npy"))
+
+
+@pytest.mark.parametrize([([10, 10, 110, 110], True, 10000)])
+def test_get_area(bbox, points, expected):
+    assert getArea(bbox, points) == expected
