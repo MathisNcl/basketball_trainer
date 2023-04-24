@@ -11,3 +11,6 @@ pytest.ini
 *.jpg
 *.mp4
 .ipynb_checkpoints/
+
+# Setuptools
+*.egg-info/
