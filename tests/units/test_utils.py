@@ -1,10 +1,10 @@
 from typing import List
-import pytest
 
 import cv2
 import numpy as np
+import pytest
 
-from basketball_trainer_src.utils import getArea, incrustration, points_distance_is_enough, random_number
+from bball_trainer.utils import getArea, incrustration, points_distance_is_enough, random_number
 
 
 def test_get_random() -> None:
@@ -21,7 +21,7 @@ def test_foreground_incrustration() -> None:
     assert np.all(img == np.load("assets/tests/test_incrustration.npy"))
 
 
-def test_incrustration():
+def test_incrustration() -> None:
     foreground = np.zeros((50, 50, 4), dtype=np.uint8)
     foreground[:, :, 0] = 255
     foreground[:, :, 3] = 255
@@ -43,7 +43,7 @@ def test_incrustration():
     assert (x, y, w, h) == (25, 25, 50, 50)
 
 
-def test_incrustration_wrong_input():
+def test_incrustration_wrong_input() -> None:
     with pytest.raises(IndexError):
         incrustration(np.zeros((50, 50, 3), dtype=np.uint8), np.zeros((100, 100, 3), dtype=np.uint8), [101, 101])
 
@@ -59,11 +59,11 @@ def test_incrustration_wrong_input():
         ([0, 0, 0, 0], False, 0.0),
     ],
 )
-def test_getArea(box, points, expected):
+def test_getArea(box: List[int], points: bool, expected: float) -> None:
     assert getArea(box, points) == expected
 
 
-def test_getArea_type_error():
+def test_getArea_type_error() -> None:
     with pytest.raises(TypeError):
         getArea("box", True)
 
@@ -77,5 +77,5 @@ def test_getArea_type_error():
         (1, 2, 3, 4, 2, False),  # distance=sqrt(8) > minimal_distance=2
     ],
 )
-def test_points_distance_is_enough(x1, y1, x2, y2, minimal_distance, expected):
+def test_points_distance_is_enough(x1: int, y1: int, x2: int, y2: int, minimal_distance: int, expected: bool) -> None:
     assert points_distance_is_enough(x1, y1, x2, y2, minimal_distance) == expected

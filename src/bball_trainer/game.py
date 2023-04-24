@@ -1,15 +1,13 @@
 import math
 import random
 import time
+from typing import Any, List, Tuple
 
 import cv2
 import cvzone
 import numpy as np
 from cvzone.HandTrackingModule import HandDetector
-
-from typing import Any, List, Tuple
-
-from utils import incrustration, random_number, points_distance_is_enough
+from utils import incrustration, points_distance_is_enough, random_number
 
 # Webcam
 cap = cv2.VideoCapture(0)
@@ -84,7 +82,7 @@ while True:
                     # If bottom-right inner box corner is inside the bounding box
                     if (
                         bbox_right[0] + bbox_right[2] <= bbox[0] + bbox[2]
-                        and bbox_right[1] + bbox_right[3] <= bbox[1] + bbox[3] # noqa
+                        and bbox_right[1] + bbox_right[3] <= bbox[1] + bbox[3]  # noqa
                     ):
                         ready[1] = True
                         cv2.rectangle(
