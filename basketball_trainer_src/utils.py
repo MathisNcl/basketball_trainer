@@ -2,6 +2,7 @@ from typing import List, Tuple
 
 import cv2
 import numpy as np
+import math
 
 
 # TODO
@@ -12,10 +13,8 @@ def iou(bboxA, bboxB):
 def getArea(box: List[int], points: bool = False) -> float:
     """compute area of a bbox
 
-
-
     Args:
-        box List[int]: _description_
+        box List[int]: [x, y, w, h] or [x1, y1, w2,y2]
         points bool: Whether to compute area with 2 corner points of the bbox else wioth width and height.
                      Defaults to True.
 
@@ -58,3 +57,7 @@ def random_number(from1: int, to1: int, from2: int, to2: int):
     out: np.ndarray = np.stack((arr1, arr2))
     out: int = np.random.choice(out)
     return out
+
+
+def points_distance_is_enough(x1, y1, x2, y2, minimal_distance=300):
+    return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) <= minimal_distance

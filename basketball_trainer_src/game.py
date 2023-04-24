@@ -9,7 +9,7 @@ from cvzone.HandTrackingModule import HandDetector
 
 from typing import Any, List, Tuple
 
-from basketball_trainer.src.utils import incrustration, random_number
+from utils import incrustration, random_number, points_distance_is_enough
 
 # Webcam
 cap = cv2.VideoCapture(0)
@@ -69,7 +69,7 @@ while True:
                     # If bottom-right inner box corner is inside the bounding box
                     if (
                         bbox_left[0] + bbox_left[2] <= bbox[0] + bbox[2]
-                        and bbox_left[1] + bbox_left[3] <= bbox[1] + bbox[3]
+                        and bbox_left[1] + bbox_left[3] <= bbox[1] + bbox[3]  # noqa
                     ):
                         ready[0] = True
                         cv2.rectangle(
@@ -84,7 +84,7 @@ while True:
                     # If bottom-right inner box corner is inside the bounding box
                     if (
                         bbox_right[0] + bbox_right[2] <= bbox[0] + bbox[2]
-                        and bbox_right[1] + bbox_right[3] <= bbox[1] + bbox[3]
+                        and bbox_right[1] + bbox_right[3] <= bbox[1] + bbox[3] # noqa
                     ):
                         ready[1] = True
                         cv2.rectangle(
@@ -120,8 +120,14 @@ while True:
         if counter:
             counter += 1
             if counter == 2:
-                cx = random_number(50, img_quart_h * 2 - 100, img_quart_h * 2 + 100, 1150)
-                cy = random.randint(50, 650)
+                too_close: bool = True
+                while too_close:
+                    new_cx = random_number(50, img_quart_h * 2 - 100, img_quart_h * 2 + 100, 1150)
+                    new_cy = random.randint(50, 650)
+                    too_close = points_distance_is_enough(new_cx, new_cy, cx, cy)
+
+                cx = new_cx
+                cy = new_cy
                 score += 1
                 counter = 0
 
