@@ -1,7 +1,0 @@
-mediapipe
-cvzones
-numpy
-opencv-contrib-python
-black
-flake8
-pytest-cov
