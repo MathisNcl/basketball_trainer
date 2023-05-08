@@ -1,7 +1,7 @@
 import math
 import random
 import time
-from typing import Any, List, Tuple
+from typing import List, Tuple
 
 import cv2
 import cvzone
@@ -9,7 +9,7 @@ import numpy as np
 from cvzone.HandTrackingModule import HandDetector
 
 from bball_trainer.starting_client import StartingClient
-from bball_trainer.utils import end_layout, draw_circle, points_distance_is_enough, random_number
+from bball_trainer.utils import draw_circle, end_layout, points_distance_is_enough, random_number
 
 # Webcam
 cap = cv2.VideoCapture(0)

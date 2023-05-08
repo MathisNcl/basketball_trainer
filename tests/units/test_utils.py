@@ -88,7 +88,7 @@ def test_points_distance_is_enough(x1: int, y1: int, x2: int, y2: int, minimal_d
     assert points_distance_is_enough(x1, y1, x2, y2, minimal_distance) == expected
 
 
-def test_draw_circle():
+def test_draw_circle() -> None:
     img = np.zeros((500, 500, 3), dtype=np.uint8)
     cx, cy = 250, 250
     blue = (255, 0, 0)
@@ -107,7 +107,7 @@ def test_draw_circle():
     assert np.array_equal(result[cy, cx - 30], dark)
 
 
-def test_end_layout():
+def test_end_layout() -> None:
     img = np.zeros((720, 1280, 3), dtype=np.uint8)
     score = 100  # set score to 100
     result = end_layout(img, score)
