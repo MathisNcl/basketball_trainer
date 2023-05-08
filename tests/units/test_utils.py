@@ -4,7 +4,14 @@ import cv2
 import numpy as np
 import pytest
 
-from bball_trainer.utils import getArea, incrustration, points_distance_is_enough, random_number
+from bball_trainer.utils import (
+    draw_circle,
+    end_layout,
+    getArea,
+    incrustration,
+    points_distance_is_enough,
+    random_number,
+)
 
 
 def test_get_random() -> None:
@@ -79,3 +86,32 @@ def test_getArea_type_error() -> None:
 )
 def test_points_distance_is_enough(x1: int, y1: int, x2: int, y2: int, minimal_distance: int, expected: bool) -> None:
     assert points_distance_is_enough(x1, y1, x2, y2, minimal_distance) == expected
+
+
+def test_draw_circle():
+    img = np.zeros((500, 500, 3), dtype=np.uint8)
+    cx, cy = 250, 250
+    blue = (255, 0, 0)
+    result = draw_circle(img, cx, cy, blue)
+    white = (255, 255, 255)
+    dark = (50, 50, 50)
+    assert result.shape == (500, 500, 3)
+    assert np.array_equal(result[cy, cx], white)
+    assert np.array_equal(result[cy, cx + 15], blue)
+    assert np.array_equal(result[cy, cx + 20], white)
+    assert np.array_equal(result[cy, cx + 25], blue)
+    assert np.array_equal(result[cy, cx + 30], dark)
+    assert np.array_equal(result[cy, cx - 15], blue)
+    assert np.array_equal(result[cy, cx - 20], white)
+    assert np.array_equal(result[cy, cx - 25], blue)
+    assert np.array_equal(result[cy, cx - 30], dark)
+
+
+def test_end_layout():
+    img = np.zeros((720, 1280, 3), dtype=np.uint8)
+    score = 100  # set score to 100
+    result = end_layout(img, score)
+    assert result.shape == (720, 1280, 3)  # check the shape of the returned image
+    assert np.array_equal(result[400, 400], (255, 0, 255))  # check if the text "Game Over" is drawn
+    assert np.array_equal(result[460, 500], (255, 0, 255))  # check if the score is displayed
+    assert np.array_equal(result[460, 575], (255, 0, 255))  # check if the instruction to restart is displayed

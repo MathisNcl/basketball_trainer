@@ -9,7 +9,7 @@ import numpy as np
 from cvzone.HandTrackingModule import HandDetector
 
 from bball_trainer.starting_client import StartingClient
-from bball_trainer.utils import points_distance_is_enough, random_number
+from bball_trainer.utils import end_layout, draw_circle, points_distance_is_enough, random_number
 
 # Webcam
 cap = cv2.VideoCapture(0)
@@ -50,7 +50,7 @@ while True:
     success, img = cap.read()
     img: np.ndarray = cv2.flip(img, 1)  # type: ignore
 
-    hands: Any = detector.findHands(img, draw=False)
+    hands: List[dict] = detector.findHands(img, draw=False)
     starting_client: StartingClient = StartingClient(begin_left, begin_right, left_hand)
     if waiting_for_start:
         img, timeStart, waiting_for_start = starting_client.starting_layout(hands, img)
@@ -88,18 +88,14 @@ while True:
                 counter = 0
 
         # Draw Button
-        cv2.circle(img, (cx, cy), 30, color, cv2.FILLED)
-        cv2.circle(img, (cx, cy), 10, (255, 255, 255), cv2.FILLED)
-        cv2.circle(img, (cx, cy), 20, (255, 255, 255), 2)
-        cv2.circle(img, (cx, cy), 30, (50, 50, 50), 2)
+        img = draw_circle(img, cx, cy, color)
 
         # Game HUD
         cvzone.putTextRect(img, f"Time: {int(totalTime-(time.time()-timeStart))}", (1000, 75), scale=3, offset=20)
         cvzone.putTextRect(img, f"Score: {str(score).zfill(2)}", (60, 75), scale=3, offset=20)
     else:
-        cvzone.putTextRect(img, "Game Over", (400, 400), scale=5, offset=30, thickness=7)
-        cvzone.putTextRect(img, f"Your Score: {score}", (450, 500), scale=3, offset=20)
-        cvzone.putTextRect(img, "Press R to restart", (460, 575), scale=2, offset=10)
+        # End game
+        img = end_layout(img, score)
 
     cv2.imshow("Image", img)
     key = cv2.waitKey(1)

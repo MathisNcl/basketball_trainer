@@ -2,6 +2,7 @@ import math
 from typing import List, Tuple
 
 import cv2
+import cvzone
 import numpy as np
 
 
@@ -85,3 +86,39 @@ def points_distance_is_enough(x1: int, y1: int, x2: int, y2: int, minimal_distan
         bool: whether the distance is greater than the minimal distance
     """
     return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) <= minimal_distance
+
+
+def draw_circle(img: np.ndarray, cx: int, cy: int, color: tuple) -> np.ndarray:
+    """
+    draw a nice circle
+
+    Args:
+        img (np.ndarray): img to add a circle
+        cx (int): x coordinate of the point
+        cy (int): y coordinate of the point
+        color (tuple): color to display the point
+    """
+    cv2.circle(img, (cx, cy), 30, color, cv2.FILLED)
+    cv2.circle(img, (cx, cy), 10, (255, 255, 255), cv2.FILLED)
+    cv2.circle(img, (cx, cy), 20, (255, 255, 255), 2)
+    cv2.circle(img, (cx, cy), 30, (50, 50, 50), 2)
+
+    return img
+
+
+def end_layout(img: np.ndarray, score: int) -> np.ndarray:
+    """
+    Display the end layout
+
+    Args:
+        img (np.ndarray): image to add the end layout
+        score (int): final score
+
+    Returns:
+        np.ndarray: img with end layout
+    """
+    cvzone.putTextRect(img, "Game Over", (400, 400), scale=5, offset=30, thickness=7)
+    cvzone.putTextRect(img, f"Your Score: {score}", (450, 500), scale=3, offset=20)
+    cvzone.putTextRect(img, "Press R to restart", (460, 575), scale=2, offset=10)
+
+    return img
