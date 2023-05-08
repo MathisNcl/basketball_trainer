@@ -35,7 +35,7 @@ jobs:
         run: bash scripts/lint.sh
       - run: mkdir coverage
       - name: Test
-        run: bash scripts/test.sh
+        run: bash scripts/tests.sh
         env:
           COVERAGE_FILE: coverage/.coverage.${{ runner.os }}-py${{ matrix.python-version }}
           CONTEXT: ${{ runner.os }}-py${{ matrix.python-version }}
