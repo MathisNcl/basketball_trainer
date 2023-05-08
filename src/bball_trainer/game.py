@@ -7,7 +7,9 @@ import cv2
 import cvzone
 import numpy as np
 from cvzone.HandTrackingModule import HandDetector
-from utils import incrustration, points_distance_is_enough, random_number
+
+from bball_trainer.starting_client import StartingClient
+from bball_trainer.utils import points_distance_is_enough, random_number
 
 # Webcam
 cap = cv2.VideoCapture(0)
@@ -28,10 +30,10 @@ coff: np.ndarray = np.polyfit(x, y, 2)  # y = Ax^2 + Bx + C
 # Game Variables
 cx: int = 250
 cy: int = 250
-color: Tuple[int] = (255, 0, 0)
+color: Tuple[int, int, int] = (255, 0, 0)
 counter: int = 0
 score: int = 0
-timeStart: time = time.time()
+timeStart: float = time.time()
 totalTime: int = 30
 waiting_for_start: bool = True
 
@@ -39,8 +41,6 @@ left_hand: np.ndarray = cv2.imread("assets/left_hand.png", cv2.IMREAD_UNCHANGED)
 size_y: int = 100
 size_x: int = 150
 left_hand = cv2.resize(left_hand, (size_y, size_x))
-right_hand: np.ndarray = cv2.flip(left_hand, 1)
-
 
 begin_left: List[int] = [int(img_quart_h - size_x / 2), int(img_quart_v - size_y / 2)]
 begin_right: List[int] = [int(3 * img_quart_h - size_x / 2), int(img_quart_v - size_y / 2)]
@@ -48,54 +48,12 @@ begin_right: List[int] = [int(3 * img_quart_h - size_x / 2), int(img_quart_v - s
 # Loop
 while True:
     success, img = cap.read()
-    img: np.ndarray = cv2.flip(img, 1)
+    img: np.ndarray = cv2.flip(img, 1)  # type: ignore
 
     hands: Any = detector.findHands(img, draw=False)
+    starting_client: StartingClient = StartingClient(begin_left, begin_right, left_hand)
     if waiting_for_start:
-        # add left hand
-        img, bbox_left = incrustration(left_hand, img, begin_left)
-
-        # add right hand
-        img, bbox_right = incrustration(right_hand, img, begin_right)
-
-        ready: List[bool] = [False, False]
-        if hands:
-            for hand in hands:
-                bbox: List[int] = hand["bbox"]
-                cv2.rectangle(img, (bbox[0], bbox[1]), (bbox[0] + bbox[2], bbox[1] + bbox[3]), (255, 0, 255), 3)
-                if bbox[0] <= bbox_left[0] and bbox[1] <= bbox_left[1]:
-                    # If bottom-right inner box corner is inside the bounding box
-                    if (
-                        bbox_left[0] + bbox_left[2] <= bbox[0] + bbox[2]
-                        and bbox_left[1] + bbox_left[3] <= bbox[1] + bbox[3]  # noqa
-                    ):
-                        ready[0] = True
-                        cv2.rectangle(
-                            img,
-                            (bbox_left[0], bbox_left[1]),
-                            (bbox_left[0] + bbox_left[2], bbox_left[1] + bbox_left[3]),
-                            (0, 0, 255),
-                            3,
-                        )
-
-                elif bbox[0] < bbox_right[0] and bbox[1] < bbox_right[1]:
-                    # If bottom-right inner box corner is inside the bounding box
-                    if (
-                        bbox_right[0] + bbox_right[2] <= bbox[0] + bbox[2]
-                        and bbox_right[1] + bbox_right[3] <= bbox[1] + bbox[3]  # noqa
-                    ):
-                        ready[1] = True
-                        cv2.rectangle(
-                            img,
-                            (bbox_right[0], bbox_right[1]),
-                            (bbox_right[0] + bbox_right[2], bbox_right[1] + bbox_right[3]),
-                            (0, 0, 255),
-                            3,
-                        )
-            if all(ready):
-                timeStart = time.time()
-                waiting_for_start = False
-                print("Game should begin.")
+        img, timeStart, waiting_for_start = starting_client.starting_layout(hands, img)
 
     elif time.time() - timeStart < totalTime:
         if hands:
@@ -110,10 +68,10 @@ while True:
                 distanceCM = A * distance**2 + B * distance + C
 
                 if distanceCM > 60:
-                    if x < cx < x + w and y < cy < y + h:
+                    if x < cx < x + w and y < cy < y + h:  # type: ignore
                         counter = 1
                 cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 255), 3)
-                cvzone.putTextRect(img, f"{int(distanceCM)} cm", (x + 5, y - 10))
+                cvzone.putTextRect(img, f"{int(distanceCM)} cm", (x + 5, y - 10))  # type: ignore
 
         if counter:
             counter += 1
