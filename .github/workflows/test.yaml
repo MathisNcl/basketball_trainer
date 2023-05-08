@@ -30,7 +30,9 @@ jobs:
           key: ${{ runner.os }}-python-${{ env.pythonLocation }}-${{ hashFiles('**/setup.cfg') }}-test
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pip install -e .[all]
+        run: |
+            pip install -e .[all]
+            pip install flake8 pytest
       - name: Pre-commit
         run: bash scripts/lint.sh
       - run: mkdir coverage
