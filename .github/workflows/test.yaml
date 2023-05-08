@@ -1,0 +1,46 @@
+name: Test
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    types: [opened]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11"]
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pip"
+          # cache-dependency-path: pyproject.toml
+      - uses: actions/cache@v3
+        id: cache
+        with:
+          path: ${{ env.pythonLocation }}
+          key: ${{ runner.os }}-python-${{ env.pythonLocation }}-${{ hashFiles('setup.cfg') }}-test
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pip install -e .[all,dev,doc,test]
+      - name: Pre-commit
+        run: bash scripts/lint.sh
+      - run: mkdir coverage
+      - name: Test
+        run: bash scripts/test.sh
+        env:
+          COVERAGE_FILE: coverage/.coverage.${{ runner.os }}-py${{ matrix.python-version }}
+          CONTEXT: ${{ runner.os }}-py${{ matrix.python-version }}
+      - name: Store coverage files
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage
+          path: coverage
