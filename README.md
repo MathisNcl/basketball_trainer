@@ -8,10 +8,10 @@ You have 30seconds to touch the most circle with your hands.
 ## Roadmap
 
 - [X] V0 : functional game
-- [] tests
+- [X] tests
 - [] tox + coverage
 - [] Oriented objects + bonus and animation
-- [] github actions
+- [X] github actions
 - [] save data + fastapi
 - [] dashboard+leaderboard
 - [] track the ball and add new rules

@@ -1,0 +1,16 @@
+.python-version
+build
+*.egg-info
+
+.venv
+venv
+
+.env*
+
+tests
+.coverage
+.pytest_cache
+.tox
+htmlcov
+
+.mypy_cache
