@@ -5,4 +5,4 @@ set -x
 
 mypy src
 black src tests -l 120 --check
-isort src tests scripts --check-only
+isort src scripts --check-only

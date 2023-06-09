@@ -1,0 +1,24 @@
+cam:
+  h: 1280
+  v: 720
+hand_detector:
+  detectionCon: 0.8
+  maxHands: 2
+
+config_point:
+  xfrom1: 150
+  xto1: 540
+  xfrom2: 740
+  xto2: 1150
+  yfrom: 50
+  yto: 650
+
+color: [255, 0, 0]
+
+totalTime: 5
+waiting_for_start: true
+
+left_hand:
+  path: assets/left_hand.png
+  size_y: 100
+  size_x: 150

@@ -5,7 +5,8 @@ on:
     branches:
       - master
   pull_request:
-    types: [opened]
+    types: [opened, ready_for_review, edited]
+  workflow_dispatch:
 
 jobs:
   test:
