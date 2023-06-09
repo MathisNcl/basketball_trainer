@@ -1,35 +1,5 @@
 from bball_trainer.hand_game import HandsDetectorBasketball
-import pytest
 import numpy as np
-
-HAND: dict = {
-    "lmList": [
-        [139, 460, 0],
-        [226, 437, -27],
-        [304, 362, -29],
-        [350, 290, -30],
-        [368, 226, -31],
-        [286, 269, -6],
-        [336, 199, -25],
-        [364, 158, -43],
-        [386, 121, -56],
-        [233, 245, -7],
-        [274, 166, -19],
-        [301, 118, -35],
-        [326, 81, -48],
-        [174, 236, -13],
-        [210, 156, -28],
-        [240, 112, -39],
-        [271, 80, -48],
-        [110, 240, -22],
-        [133, 167, -39],
-        [161, 128, -44],
-        [195, 102, -47],
-    ],
-    "bbox": (110, 80, 276, 380),
-    "center": (248, 270),
-    "type": "Right",
-}
 
 
 def test_instanciation() -> None:
@@ -37,9 +7,9 @@ def test_instanciation() -> None:
     assert isinstance(detector, HandsDetectorBasketball)
 
 
-def test_compute_distance() -> None:
+def test_compute_distance(hand) -> None:
     detector: HandsDetectorBasketball = HandsDetectorBasketball()
-    distanceCM = detector.compute_distance(HAND)
+    distanceCM = detector.compute_distance(hand)
     assert round(distanceCM, 2) == 28.52
 
 
