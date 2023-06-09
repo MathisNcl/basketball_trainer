@@ -55,18 +55,15 @@ def test_point_in_bbox(point, expected) -> None:
 
 
 def test_print_hand() -> None:
-    # Prepare test data
     img = np.zeros((480, 640, 3), dtype=np.uint8)
     hand = {"bbox": (100, 100, 200, 200)}
     distanceCM = 50.5
     color = (255, 0, 255)
-
-    # Call the print_hand function
     HandsDetectorBasketball.print_hand(img, hand, distanceCM, color)
 
-    # Verify the output
     assert isinstance(img, np.ndarray)
     assert img.shape == (480, 640, 3)
+
     # looking for color corner
     assert np.array_equal(img[100, 100], np.array(color, dtype=np.uint8))
     assert np.array_equal(img[100, 200], np.array(color, dtype=np.uint8))
