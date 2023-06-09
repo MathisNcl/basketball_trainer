@@ -82,12 +82,22 @@ class StartingClient:
         return img
 
     def reset_client(self) -> None:
+        """used to reset some var"""
         self.waiting_for_start = True
         self.timeStart = None
         self.need_to_save = True
 
     @staticmethod
     def hand_inside_bbox_detected(bbox_detected: List[int], draw_bbox: tuple[int, int, int, int]) -> bool:
+        """Check whether draw_bbox layout are inside bbox_detected hands
+
+        Args:
+            bbox_detected (List[int]): hands bboxes
+            draw_bbox (tuple[int, int, int, int]): starting layout bboxes
+
+        Returns:
+            bool
+        """
         value: bool = False
         if (
             bbox_detected[0] <= draw_bbox[0]

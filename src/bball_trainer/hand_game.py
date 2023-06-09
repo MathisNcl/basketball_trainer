@@ -42,7 +42,7 @@ class HandsDetectorBasketball(HandDetector):
 
         Args:
             hands (dict): dict from HandDetector containing hand detected infos
-            point (tuple[int]): point to touch
+            point (tuple[int, int]): point to touch
 
         Returns:
             bool: true if inside else false
@@ -64,8 +64,8 @@ class HandsDetectorBasketball(HandDetector):
         Args:
             img (np.ndarray): original image
             hands (dict): dict from HandDetector containing hand detected infos
-            distanceCM (flaot): hand distance from camera to print
-            color (tuple[int]): color for the box
+            distanceCM (float): hand distance from camera to print
+            color (tuple[int, int, int]): color for the box
 
         Returns:
             _: None
