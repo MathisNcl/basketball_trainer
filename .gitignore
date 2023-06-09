@@ -16,3 +16,4 @@ pytest.ini
 *.egg-info/
 
 .coverage
+.env
