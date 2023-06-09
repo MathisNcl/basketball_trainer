@@ -5,19 +5,11 @@ import numpy as np
 import pytest
 
 from bball_trainer.utils import (
-    draw_circle,
     end_layout,
     getArea,
     incrustration,
     points_distance_is_enough,
-    random_number,
 )
-
-
-def test_get_random() -> None:
-    assert random_number(1, 2, 4, 5) != 3
-    rand: int = random_number(1, 5, 10, 20)
-    assert rand <= 5 or rand >= 10
 
 
 def test_foreground_incrustration() -> None:
@@ -86,25 +78,6 @@ def test_getArea_type_error() -> None:
 )
 def test_points_distance_is_enough(x1: int, y1: int, x2: int, y2: int, minimal_distance: int, expected: bool) -> None:
     assert points_distance_is_enough(x1, y1, x2, y2, minimal_distance) == expected
-
-
-def test_draw_circle() -> None:
-    img = np.zeros((500, 500, 3), dtype=np.uint8)
-    cx, cy = 250, 250
-    blue = (255, 0, 0)
-    result = draw_circle(img, cx, cy, blue)
-    white = (255, 255, 255)
-    dark = (50, 50, 50)
-    assert result.shape == (500, 500, 3)
-    assert np.array_equal(result[cy, cx], white)
-    assert np.array_equal(result[cy, cx + 15], blue)
-    assert np.array_equal(result[cy, cx + 20], white)
-    assert np.array_equal(result[cy, cx + 25], blue)
-    assert np.array_equal(result[cy, cx + 30], dark)
-    assert np.array_equal(result[cy, cx - 15], blue)
-    assert np.array_equal(result[cy, cx - 20], white)
-    assert np.array_equal(result[cy, cx - 25], blue)
-    assert np.array_equal(result[cy, cx - 30], dark)
 
 
 def test_end_layout() -> None:

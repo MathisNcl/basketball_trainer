@@ -52,25 +52,6 @@ def incrustration(
     return background, (x, y, w, h)
 
 
-def random_number(from1: int, to1: int, from2: int, to2: int) -> int:
-    """
-    give two coordinates number in the range [from1, to1] or [from2, to2]
-
-    Args:
-        from1 (int): lower bound coord1
-        to1 (int): upper bound coord1
-        from2 (int): lower bound coord2
-        to2 (int): upper bound coord2
-
-    Returns:
-        int: random coordinates
-    """
-    arr1: int = np.random.randint(from1, to1)
-    arr2: int = np.random.randint(from2, to2)
-    out: np.ndarray = np.stack((arr1, arr2))
-    return np.random.choice(out)
-
-
 def points_distance_is_enough(x1: int, y1: int, x2: int, y2: int, minimal_distance: int = 300) -> bool:
     """
     Whether the distance between points is enough
@@ -86,24 +67,6 @@ def points_distance_is_enough(x1: int, y1: int, x2: int, y2: int, minimal_distan
         bool: whether the distance is greater than the minimal distance
     """
     return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2) <= minimal_distance
-
-
-def draw_circle(img: np.ndarray, cx: int, cy: int, color: tuple) -> np.ndarray:
-    """
-    draw a nice circle
-
-    Args:
-        img (np.ndarray): img to add a circle
-        cx (int): x coordinate of the point
-        cy (int): y coordinate of the point
-        color (tuple): color to display the point
-    """
-    cv2.circle(img, (cx, cy), 30, color, cv2.FILLED)
-    cv2.circle(img, (cx, cy), 10, (255, 255, 255), cv2.FILLED)
-    cv2.circle(img, (cx, cy), 20, (255, 255, 255), 2)
-    cv2.circle(img, (cx, cy), 30, (50, 50, 50), 2)
-
-    return img
 
 
 def end_layout(img: np.ndarray, score: int) -> np.ndarray:

@@ -1,4 +1,3 @@
-import random
 import time
 from typing import List, Tuple
 
@@ -7,8 +6,9 @@ import cvzone
 import numpy as np
 
 from bball_trainer.hand_game import HandsDetectorBasketball
+from bball_trainer.random_point import RandomPoint
 from bball_trainer.starting_client import StartingClient
-from bball_trainer.utils import draw_circle, end_layout, points_distance_is_enough, random_number
+from bball_trainer.utils import end_layout, points_distance_is_enough
 
 # Webcam
 cap = cv2.VideoCapture(0)
@@ -21,8 +21,15 @@ img_quart_v: int = int(720 / 4)
 detector: HandsDetectorBasketball = HandsDetectorBasketball(detectionCon=0.8, maxHands=2)
 
 # Game Variables
-cx: int = 250
-cy: int = 250
+config_point = {
+    "xfrom1": 150,
+    "xto1": img_quart_h * 2 - 100,
+    "xfrom2": img_quart_h * 2 + 100,
+    "xto2": 1150,
+    "yfrom": 50,
+    "yto": 650,
+}
+point: RandomPoint = RandomPoint(**config_point)
 color: Tuple[int, int, int] = (255, 0, 0)
 counter: int = 0
 score: int = 0
@@ -54,7 +61,7 @@ while True:
                 distanceCM = detector.compute_distance(hand=hand)
 
                 if distanceCM > 60:
-                    if detector.point_in_bbox(hand, (cx, cy)):  # type: ignore
+                    if point.in_bbox(hand):  # type: ignore
                         counter = 1
                 detector.print_hand(img, hand, distanceCM)
 
@@ -63,17 +70,16 @@ while True:
             if counter == 2:
                 too_close: bool = True
                 while too_close:
-                    new_cx = random_number(50, img_quart_h * 2 - 100, img_quart_h * 2 + 100, 1150)
-                    new_cy = random.randint(50, 650)
-                    too_close = points_distance_is_enough(new_cx, new_cy, cx, cy)
+                    candidate_point: RandomPoint = RandomPoint(**config_point)
 
-                cx = new_cx
-                cy = new_cy
+                    too_close = points_distance_is_enough(candidate_point.cx, candidate_point.cy, point.cx, point.cy)
+
+                point = candidate_point
                 score += 1
                 counter = 0
 
         # Draw Button
-        img = draw_circle(img, cx, cy, color)
+        point.draw_circle(img, color)
 
         # Game HUD
         cvzone.putTextRect(

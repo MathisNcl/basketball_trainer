@@ -35,25 +35,6 @@ class HandsDetectorBasketball(HandDetector):
         return self.A * distance**2 + self.B * distance + self.C
 
     @staticmethod
-    def point_in_bbox(hand: dict, point: tuple[int, int]) -> bool:
-        """
-        Check whether the point is inside the hand bbox
-
-        Args:
-            hands (dict): dict from HandDetector containing hand detected infos
-            point (tuple[int, int]): point to touch
-
-        Returns:
-            bool: true if inside else false
-        """
-        inside: bool = False
-        cx, cy = point
-        x, y, w, h = hand["bbox"]
-        if x < cx < x + w and y < cy < y + h:
-            inside = True
-        return inside
-
-    @staticmethod
     def print_hand(
         img: np.ndarray, hand: dict[str, Any], distanceCM: float, color: tuple[int, int, int] = (255, 0, 255)
     ) -> None:

@@ -43,17 +43,6 @@ def test_compute_distance() -> None:
     assert round(distanceCM, 2) == 28.52
 
 
-@pytest.mark.parametrize(
-    "point, expected",
-    [
-        ((10, 80), True),
-        ((15, 100), False),
-    ],
-)
-def test_point_in_bbox(point, expected) -> None:
-    HandsDetectorBasketball.point_in_bbox(HAND, point) == expected
-
-
 def test_print_hand() -> None:
     img = np.zeros((480, 640, 3), dtype=np.uint8)
     hand = {"bbox": (100, 100, 200, 200)}
