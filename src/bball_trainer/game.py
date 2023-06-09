@@ -4,13 +4,12 @@ from typing import List, Tuple
 import cv2
 import cvzone
 import numpy as np
+import yaml
 
 from bball_trainer.hand_game import HandsDetectorBasketball
 from bball_trainer.random_point import RandomPoint
 from bball_trainer.starting_client import StartingClient
 from bball_trainer.utils import end_layout, points_distance_is_enough
-
-import yaml
 
 with open("src/bball_trainer/config.yaml") as f:
     settings = yaml.safe_load(f)
