@@ -52,12 +52,10 @@ def test_starting_layout_wait() -> None:
 
     # call the starting_layout method and check the output
     output = client.starting_layout(hands, img)
-    assert isinstance(output, tuple)
-    assert len(output) == 3
-    assert isinstance(output[0], np.ndarray)
-    assert isinstance(output[1], float) or output[1] is None
-    assert isinstance(output[2], bool)
-    assert output[2] is True
+    assert isinstance(output, np.ndarray)
+    assert isinstance(client.timeStart, float) or client.timeStart is None
+    assert isinstance(client.waiting_for_start, bool)
+    assert client.waiting_for_start is True
     assert client.timeStart is None
 
 
@@ -76,10 +74,26 @@ def test_starting_layout_ready() -> None:
 
     # call the starting_layout method and check the output
     output = client.starting_layout(hands, img)
-    assert isinstance(output, tuple)
-    assert len(output) == 3
-    assert isinstance(output[0], np.ndarray)
-    assert isinstance(output[2], bool)
-    assert output[2] is False
+
+    assert isinstance(output, np.ndarray)
+    assert isinstance(client.waiting_for_start, bool)
+    assert client.waiting_for_start is False
     assert client.timeStart is not None
     # TODO: Check if the bbox are well printed
+
+
+def test_starting_layout_reser() -> None:
+    begin_left = [10, 10]
+    begin_right = [150, 10]
+    left_hand = np.zeros((20, 20, 4), dtype=np.uint8)
+    client = StartingClient(begin_left, begin_right, left_hand)
+
+    client.waiting_for_start = False
+    client.timeStart = 100
+    client.need_to_save = False
+
+    client.reset_client()
+
+    assert client.waiting_for_start == True
+    assert client.timeStart is None
+    assert client.need_to_save == True

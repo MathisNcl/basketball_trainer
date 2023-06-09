@@ -28,7 +28,6 @@ class HandsDetectorBasketball(HandDetector):
             float: distance in cm
         """
         lmList = hand["lmList"]
-
         x1, y1 = lmList[5][:2]
         x2, y2 = lmList[17][:2]
 

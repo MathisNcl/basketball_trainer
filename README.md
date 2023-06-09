@@ -4,6 +4,8 @@ Basket-ball trainer is an application to improve your dribble. During a game you
 
 You have 30seconds to touch the most circle with your hands.
 
+Have fun!
+
 
 ## Roadmap
 
