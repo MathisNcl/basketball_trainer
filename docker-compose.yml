@@ -16,4 +16,4 @@ services:
 
 volumes:
   pg_data:
-    name: postgres_container
+    name: bball_pgdata

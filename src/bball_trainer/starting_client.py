@@ -26,8 +26,9 @@ class StartingClient:
         self.right_hand: np.ndarray = cv2.flip(left_hand, 1)
         self.waiting_for_start: bool = True
         self.timeStart: Any = None
+        self.need_to_save: bool = True
 
-    def starting_layout(self, hands: List[dict], img: np.ndarray) -> tuple[np.ndarray, Any, bool]:
+    def starting_layout(self, hands: List[dict], img: np.ndarray) -> np.ndarray:
         """
         Incruste hands and detected whether the game starts
 
@@ -36,8 +37,7 @@ class StartingClient:
             img (np.ndarray): original image
 
         Returns:
-            tuple[np.ndarray, Any, bool]: return image with incrustations, the starting time of the game,
-                                          whether the game should start
+            np.ndarray: return image with incrustations
         """
         self.ready: List[bool] = [False, False]
         # add left hand
@@ -79,10 +79,15 @@ class StartingClient:
             self.waiting_for_start = False
             print("Game should begin.")
 
-        return (img, self.timeStart, self.waiting_for_start)
+        return img
+
+    def reset_client(self) -> None:
+        self.waiting_for_start = True
+        self.timeStart = None
+        self.need_to_save = True
 
     @staticmethod
-    def hand_inside_bbox_detected(bbox_detected: List[int], draw_bbox: List[int]) -> bool:
+    def hand_inside_bbox_detected(bbox_detected: List[int], draw_bbox: tuple[int, int, int, int]) -> bool:
         value: bool = False
         if (
             bbox_detected[0] <= draw_bbox[0]

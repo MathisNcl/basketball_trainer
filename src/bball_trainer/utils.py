@@ -71,7 +71,7 @@ def random_number(from1: int, to1: int, from2: int, to2: int) -> int:
     return np.random.choice(out)
 
 
-def points_distance_is_enough(x1: int, y1: int, x2: int, y2: int, minimal_distance: int = 300) -> float:
+def points_distance_is_enough(x1: int, y1: int, x2: int, y2: int, minimal_distance: int = 300) -> bool:
     """
     Whether the distance between points is enough
 

@@ -1,13 +1,13 @@
 default_language_version:
     python: python3.9
-files: ^(src|tests)
+files: ^(src)
 repos:
--   repo: local
-    hooks:
-    -   id: activate-env
-        name: activate-env
-        entry: conda activate basketball-trainer
-        language: conda
+# -   repo: local
+#     hooks:
+#     -   id: activate-env
+#         name: activate-env
+#         entry: conda activate basketball-trainer
+#         language: conda
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.4.0
     hooks:

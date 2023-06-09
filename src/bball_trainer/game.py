@@ -1,4 +1,3 @@
-import math
 import random
 import time
 from typing import List, Tuple
@@ -6,8 +5,8 @@ from typing import List, Tuple
 import cv2
 import cvzone
 import numpy as np
-from cvzone.HandTrackingModule import HandDetector
 
+from bball_trainer.hand_game import HandsDetectorBasketball
 from bball_trainer.starting_client import StartingClient
 from bball_trainer.utils import draw_circle, end_layout, points_distance_is_enough, random_number
 
@@ -19,13 +18,7 @@ img_quart_h: int = int(1280 / 4)
 img_quart_v: int = int(720 / 4)
 
 # Hand Detector
-detector: HandDetector = HandDetector(detectionCon=0.8, maxHands=2)
-
-# Find Function
-# x is the raw distance y is the value in cm
-x: List[int] = [300, 245, 200, 170, 145, 130, 112, 103, 93, 87, 80, 75, 70, 67, 62, 59, 57]
-y: List[int] = [20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100]
-coff: np.ndarray = np.polyfit(x, y, 2)  # y = Ax^2 + Bx + C
+detector: HandsDetectorBasketball = HandsDetectorBasketball(detectionCon=0.8, maxHands=2)
 
 # Game Variables
 cx: int = 250
@@ -33,8 +26,7 @@ cy: int = 250
 color: Tuple[int, int, int] = (255, 0, 0)
 counter: int = 0
 score: int = 0
-timeStart: float = time.time()
-totalTime: int = 30
+totalTime: int = 5
 waiting_for_start: bool = True
 
 left_hand: np.ndarray = cv2.imread("assets/left_hand.png", cv2.IMREAD_UNCHANGED)
@@ -45,33 +37,26 @@ left_hand = cv2.resize(left_hand, (size_y, size_x))
 begin_left: List[int] = [int(img_quart_h - size_x / 2), int(img_quart_v - size_y / 2)]
 begin_right: List[int] = [int(3 * img_quart_h - size_x / 2), int(img_quart_v - size_y / 2)]
 
+starting_client: StartingClient = StartingClient(begin_left, begin_right, left_hand)
+
 # Loop
 while True:
     success, img = cap.read()
     img: np.ndarray = cv2.flip(img, 1)  # type: ignore
 
     hands: List[dict] = detector.findHands(img, draw=False)
-    starting_client: StartingClient = StartingClient(begin_left, begin_right, left_hand)
-    if waiting_for_start:
-        img, timeStart, waiting_for_start = starting_client.starting_layout(hands, img)
+    if starting_client.waiting_for_start:
+        img = starting_client.starting_layout(hands, img)
 
-    elif time.time() - timeStart < totalTime:
+    elif time.time() - starting_client.timeStart < totalTime:
         if hands:
             for hand in hands:
-                lmList = hand["lmList"]
-                x, y, w, h = hand["bbox"]
-                x1, y1 = lmList[5][:2]
-                x2, y2 = lmList[17][:2]
-
-                distance = int(math.sqrt((y2 - y1) ** 2 + (x2 - x1) ** 2))
-                A, B, C = coff
-                distanceCM = A * distance**2 + B * distance + C
+                distanceCM = detector.compute_distance(hand=hand)
 
                 if distanceCM > 60:
-                    if x < cx < x + w and y < cy < y + h:  # type: ignore
+                    if detector.point_in_bbox(hand, (cx, cy)):  # type: ignore
                         counter = 1
-                cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 255), 3)
-                cvzone.putTextRect(img, f"{int(distanceCM)} cm", (x + 5, y - 10))  # type: ignore
+                detector.print_hand(img, hand, distanceCM)
 
         if counter:
             counter += 1
@@ -91,18 +76,24 @@ while True:
         img = draw_circle(img, cx, cy, color)
 
         # Game HUD
-        cvzone.putTextRect(img, f"Time: {int(totalTime-(time.time()-timeStart))}", (1000, 75), scale=3, offset=20)
+        cvzone.putTextRect(
+            img, f"Time: {int(totalTime-(time.time()-starting_client.timeStart))}", (1000, 75), scale=3, offset=20
+        )
         cvzone.putTextRect(img, f"Score: {str(score).zfill(2)}", (60, 75), scale=3, offset=20)
     else:
         # End game
+        if starting_client.need_to_save:
+            # save info
+            print("SAVING")
+            starting_client.need_to_save = False
         img = end_layout(img, score)
 
     cv2.imshow("Image", img)
     key = cv2.waitKey(1)
 
     if key == ord("r"):
-        timeStart = time.time()
         score = 0
         waiting_for_start = True
+        starting_client.reset_client()
     if key == ord("q"):
         break
