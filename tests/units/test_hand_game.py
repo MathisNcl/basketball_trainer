@@ -1,5 +1,6 @@
-from bball_trainer.hand_game import HandsDetectorBasketball
 import numpy as np
+
+from bball_trainer.hand_game import HandsDetectorBasketball
 
 
 def test_instanciation() -> None:

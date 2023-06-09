@@ -32,7 +32,9 @@ def test_instanciation() -> None:
         ([15, 100, 15, 80], [10, 80, 30, 100], False),
     ],
 )
-def test_hand_inside_bbox_detected(bbox_detected: List[int], draw_bbox: List[int], expected: float) -> None:
+def test_hand_inside_bbox_detected(
+    bbox_detected: List[int], draw_bbox: tuple[int, int, int, int], expected: float
+) -> None:
     assert StartingClient.hand_inside_bbox_detected(bbox_detected, draw_bbox) == expected
 
 

@@ -4,12 +4,7 @@ import cv2
 import numpy as np
 import pytest
 
-from bball_trainer.utils import (
-    end_layout,
-    getArea,
-    incrustration,
-    points_distance_is_enough,
-)
+from bball_trainer.utils import end_layout, getArea, incrustration, points_distance_is_enough
 
 
 def test_foreground_incrustration() -> None:

@@ -1,9 +1,10 @@
-from bball_trainer.random_point import RandomPoint
-import pytest
 import numpy as np
+import pytest
+
+from bball_trainer.random_point import RandomPoint
 
 
-def test_instantiate(config_point):
+def test_instantiate(config_point) -> None:
     point = RandomPoint(**config_point)
     assert point.cx <= 200 and point.cx >= 50 or point.cx <= 450 and point.cx >= 300
     assert point.cy <= 450 and point.cy >= 50
