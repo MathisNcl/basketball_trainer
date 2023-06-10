@@ -1,4 +1,13 @@
 import pytest
+from typing import Generator
+from sqlalchemy.engine import Engine
+from sqlalchemy.orm import Session
+from bball_trainer.models import Base
+
+from bball_trainer.models.database import SessionScoped
+from bball_trainer import settings
+
+from tests.utils.db import configure_sessionmakers, init_db
 
 
 @pytest.fixture
@@ -43,3 +52,29 @@ def config_point() -> dict:
         "yfrom": 50,
         "yto": 450,
     }
+
+
+@pytest.fixture(scope="session", autouse=True)
+def test_engine() -> Generator[Engine, None, None]:
+    test_db_name: str = f"test_{settings.POSTGRES_DBNAME}"
+
+    init_db(test_db_name)
+    test_engine: Engine = configure_sessionmakers(test_db_name)
+
+    yield test_engine
+
+
+@pytest.fixture
+def session_db(test_engine) -> Generator[Session, None, None]:
+    """
+    On a small project, it doesn't really matter if we create/drop
+    all tables PER EACH test methods...
+    Of course, on a biggest project, it would be quickly a REAL bottleneck!
+    """
+    Base.metadata.create_all(bind=test_engine)
+    session_db: Session = SessionScoped()
+
+    yield session_db
+
+    SessionScoped.remove()
+    Base.metadata.drop_all(bind=test_engine)

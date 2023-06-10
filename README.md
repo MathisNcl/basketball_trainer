@@ -22,3 +22,10 @@ Have fun!
 ## Credits 
 
 Thanks to Murtaza's Workshop channel. Started the project by using its code from https://www.youtube.com/watch?v=NGQgRH2_kq8.
+
+Non exhaustive list of useful help : 
+
+- https://fastapi.tiangolo.com/tutorial/sql-databases/#create-a-sessionlocal-class
+- https://dev.to/ghost/implementing-sqlalchemy-with-docker-18c9
+- https://dev.to/kaelscion/authentication-hashing-in-sqlalchemy-1bem
+- https://docs.sqlalchemy.org/
