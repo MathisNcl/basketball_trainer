@@ -12,33 +12,33 @@ from bball_trainer.starting_client import StartingClient
 from bball_trainer.utils import end_layout, points_distance_is_enough
 
 with open("src/bball_trainer/config.yaml") as f:
-    settings = yaml.safe_load(f)
+    config = yaml.safe_load(f)
 
 # Webcam
 cap = cv2.VideoCapture(0)
-cap.set(3, settings["cam"]["h"])
-cap.set(4, settings["cam"]["v"])
-img_quart_h: int = int(settings["cam"]["h"] / 4)
-img_quart_v: int = int(settings["cam"]["v"] / 4)
+cap.set(3, config["cam"]["h"])
+cap.set(4, config["cam"]["v"])
+img_quart_h: int = int(config["cam"]["h"] / 4)
+img_quart_v: int = int(config["cam"]["v"] / 4)
 
 # Hand Detector
 
 detector: HandsDetectorBasketball = HandsDetectorBasketball(
-    detectionCon=settings["hand_detector"]["detectionCon"], maxHands=settings["hand_detector"]["maxHands"]
+    detectionCon=config["hand_detector"]["detectionCon"], maxHands=config["hand_detector"]["maxHands"]
 )
 
 # Game Variables
-config_point = settings["config_point"]
+config_point = config["config_point"]
 point: RandomPoint = RandomPoint(**config_point)
-color: Tuple[int, int, int] = settings["color"]
+color: Tuple[int, int, int] = config["color"]
 counter: int = 0
 score: int = 0
-totalTime: int = settings["totalTime"]
+totalTime: int = config["totalTime"]
 waiting_for_start: bool = True
 
-left_hand: np.ndarray = cv2.imread(settings["left_hand"]["path"], cv2.IMREAD_UNCHANGED)
-size_y: int = settings["left_hand"]["size_y"]
-size_x: int = settings["left_hand"]["size_x"]
+left_hand: np.ndarray = cv2.imread(config["left_hand"]["path"], cv2.IMREAD_UNCHANGED)
+size_y: int = config["left_hand"]["size_y"]
+size_x: int = config["left_hand"]["size_x"]
 left_hand = cv2.resize(left_hand, (size_y, size_x))
 
 begin_left: List[int] = [int(img_quart_h - size_x / 2), int(img_quart_v - size_y / 2)]
