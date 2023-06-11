@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List, Optional
 
 from sqlalchemy import Select
 from sqlalchemy.orm import Session
@@ -18,9 +18,9 @@ def create_game_record(db: Session, **kwargs: Any) -> GameRecord:
     return save_game_record(db=db, game_record=game_record)
 
 
-def get_game(db: Session, id: int) -> GameRecord:
+def get_game(db: Session, id: int) -> Optional[GameRecord]:
     return db.scalars(Select(GameRecord).filter(GameRecord.id == id)).first()
 
 
-def get_all_games_user(db: Session, user_id: int) -> GameRecord:
+def get_all_games_user(db: Session, user_id: int) -> Optional[List[GameRecord]]:
     return db.scalars(Select(GameRecord).filter(GameRecord.user_id == user_id)).all()
