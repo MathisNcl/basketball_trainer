@@ -14,7 +14,8 @@ Have fun!
 - [] tox + coverage
 - [] Oriented objects + bonus and animation
 - [X] github actions
-- [] save data + fastapi
+- [] save data
+- [] fastapi
 - [] dashboard+leaderboard
 - [] track the ball and add new rules
 
