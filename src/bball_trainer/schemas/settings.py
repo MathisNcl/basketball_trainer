@@ -1,6 +1,6 @@
-from pydantic import BaseSettings, validator, PostgresDsn
-
 from typing import Any, Optional
+
+from pydantic import BaseSettings, PostgresDsn, validator
 
 
 class Settings(BaseSettings):

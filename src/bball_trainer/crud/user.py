@@ -1,9 +1,9 @@
-from bball_trainer.models import User
-
-from sqlalchemy.orm import Session
-from sqlalchemy import Select
-
 from typing import Any
+
+from sqlalchemy import Select
+from sqlalchemy.orm import Session
+
+from bball_trainer.models import User
 
 
 def save_user(db: Session, user: User) -> User:
@@ -14,7 +14,8 @@ def save_user(db: Session, user: User) -> User:
 
 
 def create_user(db: Session, **kwargs: Any) -> User:
-    user = User(**kwargs)
+    user: User = User(**kwargs)
+    user.set_password(user.password_hash)
     return save_user(db=db, user=user)
 
 
@@ -25,4 +26,4 @@ def update_user(db: Session, user: User, data: dict[str, Any]) -> User:
 
 
 def get_user(db: Session, id: int) -> User:
-    return db.scalar(Select(User).filter(User.id == id).first())
+    return db.scalars(Select(User).filter(User.id == id)).first()

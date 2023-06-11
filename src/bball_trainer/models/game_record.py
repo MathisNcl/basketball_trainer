@@ -1,7 +1,9 @@
-from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy import ForeignKey, func, Constraint
-from bball_trainer.models import Base, User
 from datetime import datetime
+
+from sqlalchemy import ForeignKey, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+from bball_trainer.models import Base, User
 
 
 class GameRecord(Base):
