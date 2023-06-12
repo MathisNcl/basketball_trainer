@@ -29,6 +29,28 @@ def test_create_user(session_db, test_client):
 
 
 @pytest.mark.parametrize(
+    "attribute, value, expected_msg",
+    [
+        ("pseudo", "foo", "ensure this value has at least 5 characters"),
+        ("pseudo", "foo" * 20, "ensure this value has at most 30 characters"),
+        ("password", "foo", "ensure this value has at least 5 characters"),
+        ("password", "foo" * 20, "ensure this value has at most 30 characters"),
+        ("age", 10, "ensure this value is greater than or equal to 13"),
+    ],
+)
+def test_create_user_wrong_size(test_client, attribute, value, expected_msg):
+    json_dict = {"pseudo": "Captain", "last_name": "Nicoli", "first_name": "Mathis", "age": 25, "password": "blabla"}
+    json_dict[attribute] = value
+    response = test_client.post(
+        url="user/",
+        json=json_dict,
+    )
+
+    assert response.status_code == 422
+    assert response.json()["detail"][0]["msg"] == expected_msg
+
+
+@pytest.mark.parametrize(
     "attribute_missing, expected_status",
     [
         ("pseudo", 422),
