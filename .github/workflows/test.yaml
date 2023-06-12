@@ -12,10 +12,10 @@ on:
       - master
 env:
   # in the repo
-  POSTGRES_USER: ${{ vars.POSTGRES_USER }}
-  POSTGRES_PASSWORD: ${{ vars.POSTGRES_PASSWORD }}
-  POSTGRES_DBNAME: ${{ vars.POSTGRES_DBNAME }}
-  POSTGRES_PORT: ${{ vars.POSTGRES_PORT }}
+  POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+  POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+  POSTGRES_DBNAME: ${{ secrets.POSTGRES_DBNAME }}
+  POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
 jobs:
   test:
     runs-on: ubuntu-latest
