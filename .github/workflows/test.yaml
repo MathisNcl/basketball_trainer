@@ -62,6 +62,9 @@ jobs:
         # If we were running the job on the VM this would be localhost
           POSTGRES_HOST: localhost
           POSTGRES_PORT: 5432
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DBNAME: ${{ secrets.POSTGRES_DBNAME }}
       # - name: Test
       #   run: bash scripts/tests.sh
       #   env:
