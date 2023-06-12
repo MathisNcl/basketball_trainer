@@ -1,9 +1,16 @@
-from typing import Any, Optional
+import sys
+from pathlib import Path
+from typing import Any, Optional, cast
 
 from pydantic import BaseSettings, PostgresDsn, validator
 
+PACKAGE_DIR: Path = Path(cast(str, sys.modules["bball_trainer"].__file__)).parent
+BASE_DIR: Path = PACKAGE_DIR.parent.parent if PACKAGE_DIR.parent.name == "src" else PACKAGE_DIR
+
 
 class Settings(BaseSettings):
+    PACKAGE_DIR: Path = PACKAGE_DIR
+
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
     POSTGRES_DBNAME: str
@@ -27,5 +34,5 @@ class Settings(BaseSettings):
 
     class Config:
         case_sensitive = True
-        env_file = ".env"
+        env_file = [BASE_DIR / ".env"]
         env_file_encoding = "utf-8"

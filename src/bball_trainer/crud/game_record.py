@@ -1,6 +1,6 @@
 from typing import Any, List, Optional
 
-from sqlalchemy import Select
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from bball_trainer.models import GameRecord
@@ -19,8 +19,8 @@ def create_game_record(db: Session, **kwargs: Any) -> GameRecord:
 
 
 def get_game(db: Session, id: int) -> Optional[GameRecord]:
-    return db.scalars(Select(GameRecord).filter(GameRecord.id == id)).first()
+    return db.scalars(select(GameRecord).filter(GameRecord.id == id)).first()
 
 
-def get_all_games_user(db: Session, user_id: int) -> Optional[List[GameRecord]]:
-    return db.scalars(Select(GameRecord).filter(GameRecord.user_id == user_id)).all()
+def get_all_games_user(db: Session, user_id: int) -> List[GameRecord]:
+    return db.scalars(select(GameRecord).filter(GameRecord.user_id == user_id)).all()  # type: ignore

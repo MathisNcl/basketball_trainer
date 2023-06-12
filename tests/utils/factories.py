@@ -19,7 +19,7 @@ class UserFactory(BaseFactory):
         model = models.User
 
     pseudo = factory.Faker("user_name", locale=settings.LANGUAGE_CODE)
-    password_hash = factory.Faker("swift", locale=settings.LANGUAGE_CODE)
+    password = factory.Faker("swift", locale=settings.LANGUAGE_CODE)
 
     last_name = factory.Faker("last_name", locale=settings.LANGUAGE_CODE)
     first_name = factory.Faker("first_name", locale=settings.LANGUAGE_CODE)
@@ -35,7 +35,7 @@ class UserFactory(BaseFactory):
     @factory.post_generation
     def set_password(self, created, extracted, **kwargs):
         if created:
-            self.set_password(self.password_hash)
+            self.set_password(self.password)
 
 
 class GameRecordFactory(BaseFactory):

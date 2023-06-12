@@ -5,7 +5,7 @@ from bball_trainer.models import User, GameRecord
 
 
 def test_user(session_db):
-    u = UserFactory(password_hash="toto")
+    u = UserFactory(password="toto")
 
     with session_db as db:
         user = crud_user.get_user(db, id=u.id)
