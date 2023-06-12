@@ -27,6 +27,11 @@ jobs:
             --health-interval 10s
             --health-timeout 5s
             --health-retries 5
+        env:
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_DBNAME: ${{ secrets.POSTGRES_DBNAME }}
+          POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python
