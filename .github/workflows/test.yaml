@@ -8,11 +8,11 @@ on:
   workflow_dispatch:
 env:
   # in the repo
-  POSTGRES_HOST: postgres
+  POSTGRES_HOST: localhost
   POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
   POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
   POSTGRES_DBNAME: ${{ secrets.POSTGRES_DBNAME }}
-  POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
+  POSTGRES_PORT: 5432
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -24,12 +24,12 @@ jobs:
         postgres:
           image: postgres
           env:
-            POSTGRES_HOST: postgres
+            POSTGRES_HOST: localhost
             POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
             POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
             POSTGRES_DBNAME: ${{ secrets.POSTGRES_DBNAME }}
           ports:
-            - 5430:5432
+            - 5432:5432
           options: >-
             --health-cmd pg_isready
             --health-interval 10s
@@ -60,8 +60,8 @@ jobs:
         run: pytest -v
         env:
         # If we were running the job on the VM this would be localhost
-          POSTGRES_HOST: postgres
-          POSTGRES_PORT: ${{ job.services.postgres.ports[5430] }}
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
       # - name: Test
       #   run: bash scripts/tests.sh
       #   env:
