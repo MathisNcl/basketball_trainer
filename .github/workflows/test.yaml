@@ -10,7 +10,12 @@ on:
   pull_request_target:
     branches:
       - master
-
+env:
+  # in the repo
+  POSTGRES_USER: ${{ vars.POSTGRES_USER }}
+  POSTGRES_PASSWORD: ${{ vars.POSTGRES_PASSWORD }}
+  POSTGRES_DBNAME: ${{ vars.POSTGRES_DBNAME }}
+  POSTGRES_PORT: ${{ vars.POSTGRES_PORT }}
 jobs:
   test:
     runs-on: ubuntu-latest
