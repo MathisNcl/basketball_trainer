@@ -8,6 +8,7 @@ on:
   workflow_dispatch:
 env:
   # in the repo
+  POSTGRES_HOST: localhost
   POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
   POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
   POSTGRES_DBNAME: ${{ secrets.POSTGRES_DBNAME }}
@@ -23,6 +24,7 @@ jobs:
         postgres:
           image: postgres
           env:
+            POSTGRES_HOST: localhost
             POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
             POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
             POSTGRES_DBNAME: ${{ secrets.POSTGRES_DBNAME }}
