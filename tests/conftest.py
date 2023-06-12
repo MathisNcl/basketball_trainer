@@ -3,7 +3,8 @@ from typing import Generator
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
 from bball_trainer.models import Base
-
+from starlette.testclient import TestClient
+from bball_trainer.api.main import app
 from bball_trainer.models.database import SessionScoped
 from bball_trainer import settings
 
@@ -78,3 +79,8 @@ def session_db(test_engine) -> Generator[Session, None, None]:
 
     SessionScoped.remove()
     Base.metadata.drop_all(bind=test_engine)
+
+
+@pytest.fixture
+def test_client(session_db) -> TestClient:
+    yield TestClient(app)
