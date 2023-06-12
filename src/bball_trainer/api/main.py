@@ -52,6 +52,10 @@ async def get_user(user_id: int, db: Session = Depends(get_db)) -> Optional[mode
     tags=["user"],
 )
 async def create_user(user_in: UserIn, db: Session = Depends(get_db)) -> models.User:
+    user_db: Optional[models.User] = crud_user.get_user(db=db, pseudo=user_in.pseudo)
+    if user_db:
+        raise HTTPException(status_code=403, detail=f"Pseudo {user_in.pseudo} already exists.")
+
     user_saved: models.User = crud_user.create_user(db, **user_in.dict())
     return user_saved
 

@@ -1,5 +1,7 @@
 from bball_trainer.crud import user as crud_user
+from tests.utils.factories import UserFactory
 import pytest
+from sqlalchemy.exc import IntegrityError
 
 
 def test_create_user(session_db, test_client):
@@ -60,7 +62,7 @@ def test_create_user_wrong_size(test_client, attribute, value, expected_msg):
         ("age", 201),
     ],
 )
-def test_create_user_missing_infos(session_db, test_client, attribute_missing, expected_status):
+def test_create_user_missing_infos(test_client, attribute_missing, expected_status):
     json_dict = {"pseudo": "Captain", "last_name": "Nicoli", "first_name": "Mathis", "age": 25, "password": "blabla"}
     del json_dict[attribute_missing]
 
@@ -70,3 +72,14 @@ def test_create_user_missing_infos(session_db, test_client, attribute_missing, e
     )
 
     assert response.status_code == expected_status
+
+
+def test_same_pseudo(test_client):
+    u = UserFactory()
+    response = test_client.post(
+        url="user/",
+        json={"pseudo": u.pseudo, "last_name": "Nicoli", "first_name": "Mathis", "age": 25, "password": "blabla"},
+    )
+
+    assert response.status_code == 403
+    assert response.json()["detail"] == f"Pseudo {u.pseudo} already exists."
