@@ -1,19 +1,19 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class UserBase(BaseModel):
-    pseudo: str
+    pseudo: str = Field(min_length=5, max_length=30)
 
     last_name: str
     first_name: str
-    age: Optional[int]
+    age: Optional[int] = Field(ge=13)
 
 
 class UserIn(UserBase):
-    password: str
+    password: str = Field(min_length=5, max_length=30)
 
 
 class UserOut(UserBase):
@@ -27,5 +27,5 @@ class UserOut(UserBase):
 class UserUpdate(BaseModel):
     last_name: Optional[str]
     first_name: Optional[str]
-    age: Optional[int]
+    age: Optional[int] = Field(ge=13)
     password: Optional[str]

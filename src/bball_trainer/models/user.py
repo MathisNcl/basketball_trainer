@@ -9,7 +9,7 @@ from bball_trainer.models import Base
 
 
 class User(Base):
-    pseudo: Mapped[str]
+    pseudo: Mapped[str] = mapped_column(unique=True)
     password: Mapped[str]
 
     last_name: Mapped[str]

@@ -28,7 +28,9 @@ def update_user(db: Session, user: User, data: dict[str, Any]) -> User:
     return save_user(db=db, user=user)
 
 
-def get_user(db: Session, id: int) -> Optional[User]:
+def get_user(db: Session, id: Optional[int] = None, pseudo: Optional[str] = None) -> Optional[User]:
+    if pseudo is not None:
+        return db.scalars(select(User).filter(User.pseudo == pseudo)).first()
     return db.scalars(select(User).filter(User.id == id)).first()
 
 

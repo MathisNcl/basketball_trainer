@@ -1,18 +1,25 @@
-from tests.utils.factories import UserFactory
-from bball_trainer.crud import user as crud_user
+from tests.utils.factories import UserFactory, GameRecordFactory
 import pytest
 from sqlalchemy.exc import SQLAlchemyError
 
+from bball_trainer.crud import game_record as crud_gr
+
 
 def test_delete_user(session_db, test_client):
-    db_user = UserFactory()
-    response = test_client.delete(url=f"user/{db_user.id}")
+    db_user = UserFactory(game=True)
+    user_id = db_user.id
+    GameRecordFactory(user_id=user_id)
+
+    response = test_client.delete(url=f"user/{user_id}")
 
     assert response.status_code == 204
 
     with pytest.raises(SQLAlchemyError) as cm:
         session_db.refresh(db_user)
     assert "Could not refresh instance" in str(cm.value)
+
+    games = crud_gr.get_all_games_user(db=session_db, user_id=user_id)
+    assert len(games) == 0
 
 
 def test_delete_user_unknown_id(test_client):

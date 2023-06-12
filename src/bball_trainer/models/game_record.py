@@ -9,5 +9,5 @@ from bball_trainer.models import Base, User
 class GameRecord(Base):
     score: Mapped[int]
     user_id = mapped_column(ForeignKey("user.id"))
-    user: Mapped["User"] = relationship(uselist=False)
+    user: Mapped["User"] = relationship(uselist=False, cascade="all,delete", backref="parent")
     created_at: Mapped[datetime] = mapped_column(default=func.now())
