@@ -5,11 +5,7 @@ on:
     branches:
       - master
   pull_request:
-    types: [opened, ready_for_review, edited]
   workflow_dispatch:
-  pull_request_target:
-    branches:
-      - master
 env:
   # in the repo
   POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
