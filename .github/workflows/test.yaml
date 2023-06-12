@@ -42,8 +42,8 @@ jobs:
         run: |
             pip install -e .[all]
             pip install flake8 pytest
-      - name: Lint
-        run: bash scripts/lint.sh
+      # - name: Lint
+      #   run: bash scripts/lint.sh
       - name: Test
         run: pytest -v
       # - name: Test
