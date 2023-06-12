@@ -12,14 +12,6 @@ env:
   POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
   POSTGRES_DBNAME: ${{ secrets.POSTGRES_DBNAME }}
   POSTGRES_PORT: ${{ secrets.POSTGRES_PORT }}
-services:
-      postgres:
-        image: postgres
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -27,7 +19,14 @@ jobs:
       matrix:
         python-version: ["3.9"]
       fail-fast: false
-
+    services:
+        postgres:
+          image: postgres
+          options: >-
+            --health-cmd pg_isready
+            --health-interval 10s
+            --health-timeout 5s
+            --health-retries 5
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python
