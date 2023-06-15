@@ -17,3 +17,4 @@ pytest.ini
 
 .coverage
 .env
+.tox

@@ -4,7 +4,7 @@
 
 include .env
 help: # Show help for each of the Makefile recipes.
-	@grep -E '^[a-zA-Z0-9 -]+:.*#'  Makefile | sort | while read -r l; do printf "\033[1;32m$$(echo $$l | cut -f 1 -d':')\033[00m:$$(echo $$l | cut -f 2- -d'#')\n"; done
+	@grep -E '^[a-zA-Z0-9 _]+:.*#'  Makefile | sort | while read -r l; do printf "\033[1;32m$$(echo $$l | cut -f 1 -d':')\033[00m:$$(echo $$l | cut -f 2- -d'#')\n"; done
 
 # Code 
 deps: # Install deps
@@ -14,6 +14,8 @@ pre: # Run pre-commit hooks on all files
 cov: # Compute coverage
 	pytest --cov=src --cov-report term-missing
 
+report: # Make report cov
+	tox -r
 
 # Docker
 ps: # Show all current Docker
