@@ -21,6 +21,8 @@ class Settings(BaseSettings):
 
     LANGUAGE_CODE: str = "fr-FR"
 
+    SECRET_KEY: str = "abc"
+
     @validator("POSTGRES_URI", pre=True)
     def assemble_db(cls, v: Optional[str], values: dict[str, Any]) -> str:
         return PostgresDsn.build(

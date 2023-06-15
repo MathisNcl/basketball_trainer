@@ -90,7 +90,9 @@ while True:
         # End game
         if starting_client.need_to_save:
             # save info
+            # TODO: set a logger
             print("SAVING")
+
             starting_client.need_to_save = False
         img = end_layout(img, score)
 

@@ -15,7 +15,7 @@ config_point:
 
 color: [255, 0, 0]
 
-totalTime: 5
+totalTime: 15
 waiting_for_start: true
 
 left_hand:
