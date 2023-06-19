@@ -1,4 +1,4 @@
-from tests.utils.factories import UserFactory, GameRecordFactory
+from tests.utils.factories import GameRecordFactory, UserFactory
 
 
 def test_get_games(test_client):

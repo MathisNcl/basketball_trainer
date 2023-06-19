@@ -1,9 +1,10 @@
-from tests.utils.factories import UserFactory
 import pytest
+
+from tests.utils.factories import UserFactory
 
 
 def test_update_user_unknown(test_client):
-    response = test_client.patch(url="user/100", json={})
+    response = test_client.patch(url="user/100/", json={})
 
     assert response.status_code == 404
 
@@ -21,7 +22,7 @@ def test_update_user_unknown(test_client):
 )
 def test_update_user(test_client, session_db, attribute, old_value, new_value):
     u = UserFactory(**{attribute: old_value})
-    response = test_client.patch(url=f"user/{u.id}", json={attribute: new_value})
+    response = test_client.patch(url=f"user/{u.id}/", json={attribute: new_value})
 
     assert response.status_code == 200
 
@@ -33,7 +34,7 @@ def test_update_user(test_client, session_db, attribute, old_value, new_value):
 
 def test_update_password(test_client, session_db):
     u = UserFactory(password="old_password")
-    response = test_client.patch(url=f"user/{u.id}", json={"password": "new_password"})
+    response = test_client.patch(url=f"user/{u.id}/", json={"password": "new_password"})
 
     assert response.status_code == 200
 

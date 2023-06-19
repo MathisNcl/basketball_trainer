@@ -1,4 +1,4 @@
-from typing import Generator, List, Optional
+from typing import Any, Dict, Generator, List, Optional
 
 from fastapi import Depends, FastAPI, HTTPException, status
 from sqlalchemy.orm import Session
@@ -8,7 +8,7 @@ from bball_trainer import models
 from bball_trainer.crud import game_record as crud_gr
 from bball_trainer.crud import user as crud_user
 from bball_trainer.models.database import SessionFactory, engine
-from bball_trainer.schemas import GameRecordIn, GameRecordOut, UserIn, UserOut, UserUpdate
+from bball_trainer.schemas import GameRecordIn, GameRecordOut, LoginResult, UserIn, UserLogin, UserOut, UserUpdate
 
 app = FastAPI(
     title="Basketball trainer API",
@@ -60,8 +60,22 @@ async def create_user(user_in: UserIn, db: Session = Depends(get_db)) -> models.
     return user_saved
 
 
+@app.post(
+    "/user/login/",
+    response_model=LoginResult,
+    status_code=status.HTTP_202_ACCEPTED,
+    description="Connexion d'un utilisateur",
+    tags=["user"],
+)
+async def login_user(user: UserLogin, db: Session = Depends(get_db)) -> Dict[str, Any]:
+    user_db: Optional[models.User] = crud_user.get_user(db=db, pseudo=user.pseudo)
+    if not user_db:
+        raise HTTPException(status_code=404, detail=f"Pseudo {user.pseudo} does not exist.")
+    return {"pseudo": user.pseudo, "connected": user_db.check_password(user.password)}
+
+
 @app.patch(
-    "/user/{user_id}",
+    "/user/{user_id}/",
     response_model=UserOut,
     status_code=status.HTTP_200_OK,
     description="Mise à jour d'un utilisateur",
@@ -76,7 +90,10 @@ async def update_user(user_id: int, user_in: UserUpdate, db: Session = Depends(g
 
 
 @app.delete(
-    "/user/{user_id}", status_code=status.HTTP_204_NO_CONTENT, description="Suppression d'un utilisateur", tags=["user"]
+    "/user/{user_id}/",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description="Suppression d'un utilisateur",
+    tags=["user"],
 )
 async def delete_user(user_id: int, db: Session = Depends(get_db)) -> None:
     db_user: Optional[models.User] = crud_user.get_user(db, id=user_id)
@@ -104,7 +121,7 @@ async def create_game_record(game_record_in: GameRecordIn, db: Session = Depends
 
 
 @app.get(
-    "/game_record/{user_id}",
+    "/game_record/{user_id}/",
     response_model=Optional[List[GameRecordOut]],
     description="Récupération de toutes les parties d'un joueur",
     tags=["game_record"],

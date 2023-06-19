@@ -13,20 +13,25 @@ Have fun!
 
 - [X] V0 : functional game
 - [X] tests
-- [] tox + coverage
+- [X] tox
+- [ ] 100% coverage
 - [X] Oriented objects
-- [] bonus points
+- [ ] bonus points
 - [X] github actions
 - [X] save data
 - [X] fastapi
-- [] dashboard+leaderboard
-- [] track the ball and add new rules
+- [ ] dashboard+leaderboard
+- [ ] track the ball and add new rules
 
+For now, there is no connection between User table and dashboard, facing some issues so ony http login in dashnboard.
 
 ## Credits 
 
 Thanks to Yannick Chabbert with whom I worked and learned a lot.
+
 Thanks to Murtaza's Workshop channel. Started the project by using its code from https://www.youtube.com/watch?v=NGQgRH2_kq8.
+
+[Coach icons created by Flat Icons - Flaticon](https://www.flaticon.com/free-icons/coach)
 
 Non exhaustive list of useful help : 
 

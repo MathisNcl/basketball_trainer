@@ -20,7 +20,7 @@ begin_right: list[int] = [885, 130]
 
 def test_instanciation() -> None:
     with pytest.raises(TypeError):
-        StartingClient()
+        StartingClient()  # type: ignore
     starting_client: StartingClient = StartingClient(begin_left, begin_right, left_hand)
     assert isinstance(starting_client, StartingClient)
 
@@ -96,6 +96,6 @@ def test_starting_layout_reser() -> None:
 
     client.reset_client()
 
-    assert client.waiting_for_start == True
+    assert client.waiting_for_start
     assert client.timeStart is None
-    assert client.need_to_save == True
+    assert client.need_to_save

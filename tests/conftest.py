@@ -1,13 +1,14 @@
-import pytest
 from typing import Generator
+
+import pytest
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
-from bball_trainer.models import Base
 from starlette.testclient import TestClient
-from bball_trainer.api.main import app
-from bball_trainer.models.database import SessionScoped
-from bball_trainer import settings
 
+from bball_trainer import settings
+from bball_trainer.api.main import app
+from bball_trainer.models import Base
+from bball_trainer.models.database import SessionScoped
 from tests.utils.db import configure_sessionmakers, init_db
 
 
