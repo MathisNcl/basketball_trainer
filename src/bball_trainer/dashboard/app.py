@@ -56,7 +56,7 @@ def login_logout(login_click: int, passwordSubmit: int, logout_click: int, usern
     data: Dict[str, Any] = response.json()
     if login_click > 0 or passwordSubmit > 0:
         if response.status_code == 202 and data["connected"]:
-            return [True] * 3 + [0, False, 0, username, "form-control", password, "form-control", 0]
+            return [True] * 3 + [0, False, 0, username, "form-control is-valid", password, "form-control is-valid", 0]
         else:
             return [False, False, False, 0, True, 0, "", "form-control is-invalid", "", "form-control is-invalid", 0]
 
