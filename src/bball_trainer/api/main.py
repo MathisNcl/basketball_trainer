@@ -36,7 +36,7 @@ async def get_all_users(db: Session = Depends(get_db)) -> Optional[List[models.U
     return all_users
 
 
-@app.get("/user/{user_id}", response_model=UserOut, description="Récupération d'un utilisateur", tags=["user"])
+@app.get("/user/{user_id}/", response_model=UserOut, description="Récupération d'un utilisateur", tags=["user"])
 async def get_user(user_id: int, db: Session = Depends(get_db)) -> Optional[models.User]:
     db_user: Optional[models.User] = crud_user.get_user(db, id=user_id)
     if not db_user:

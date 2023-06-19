@@ -14,7 +14,7 @@ def test_get_users(test_client):
 
 def test_get_user(test_client):
     u = UserFactory()
-    response = test_client.get(url=f"user/{u.id}")
+    response = test_client.get(url=f"user/{u.id}/")
 
     assert response.status_code == 200
 
@@ -26,7 +26,7 @@ def test_get_user(test_client):
 
 
 def test_get_user_unknow_id(test_client):
-    response = test_client.get(url="user/100")
+    response = test_client.get(url="user/100/")
 
     assert response.status_code == 404
 
