@@ -156,14 +156,14 @@ def display_card_infos(logoutButton: bool, username: str) -> Any:
     [
         State("game-time", "value"),
         State("game-difficulty", "value"),
-        State("game-hand-constraint-switch", "value"),
+        State("game-hand-constraint-switch", "on"),
     ],
 )
 def launch_game(n_start: int, time: int, difficulty: str, hand_constraint: bool) -> str:
     # TODO: add args
     if ctx.triggered_id == "startingButton":
         script_path = settings.PACKAGE_DIR / "game.py"
-        call(["python3", script_path])
+        call(["python3", script_path, "-t", str(time), "-d", difficulty, "-hc", str(hand_constraint)])
 
     return ""
 

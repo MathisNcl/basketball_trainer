@@ -68,7 +68,7 @@ def test_sign_in(mock_requests, dash_duo, disable_authentication):
     mock_response = mock_requests.return_value
 
     # sign in
-    ## open and close
+    # open and close
     signin_button = dash_duo.find_element("#signInButton")
     assert signin_button.is_displayed()
 
@@ -78,7 +78,7 @@ def test_sign_in(mock_requests, dash_duo, disable_authentication):
     cancel_button.click()
     assert not dash_duo.wait_for_no_elements("#signInModal", timeout=2)
 
-    ## wrong
+    # wrong
     mock_response.status_code = 403
     mock_response.json.return_value = {"detail": "Pseudo localadmin already exists."}
     signin_button.click()
@@ -100,7 +100,7 @@ def test_sign_in(mock_requests, dash_duo, disable_authentication):
     assert dash_duo.wait_for_element("#signInModal").is_displayed()
     assert dash_duo.wait_for_text_to_equal("#modal_error", "Pseudo localadmin already exists.")
 
-    ## right
+    # right
     mock_response.status_code = 201
     mock_response.json.return_value = {}
     username_modal.send_keys("2")

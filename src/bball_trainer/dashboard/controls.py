@@ -1,6 +1,6 @@
 import dash_bootstrap_components as dbc
-from dash import html, dcc
 import dash_daq as daq
+from dash import dcc, html
 
 layout = dbc.Card(
     [

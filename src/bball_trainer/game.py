@@ -1,3 +1,4 @@
+import argparse
 import time
 from typing import List, Tuple
 
@@ -13,6 +14,17 @@ from bball_trainer.utils import end_layout, points_distance_is_enough
 
 with open("src/bball_trainer/config.yaml") as f:
     config = yaml.safe_load(f)
+
+parser = argparse.ArgumentParser(description="Basketball game", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument("-t", "--total-time", help="Game time", default=30)
+parser.add_argument("-d", "--difficulty", help="Game difficulty", default="Easy", choices=["Easy", "Medium", "Hard"])
+parser.add_argument("-hc", "--hand-constraint", help="Whether activate hand constraint or not", default=False)
+
+args = parser.parse_args()
+config_args = vars(args)
+config_args["total_time"] = int(config_args["total_time"])
+config_args["hand_constraint"] = bool(config_args["hand_constraint"])
+config.update(config_args)
 
 # Webcam
 cap = cv2.VideoCapture(0)
@@ -33,7 +45,7 @@ point: RandomPoint = RandomPoint(**config_point)
 color: Tuple[int, int, int] = config["color"]
 counter: int = 0
 score: int = 0
-totalTime: int = config["totalTime"]
+totalTime: int = config["total_time"]
 waiting_for_start: bool = True
 
 left_hand: np.ndarray = cv2.imread(config["left_hand"]["path"], cv2.IMREAD_UNCHANGED)
