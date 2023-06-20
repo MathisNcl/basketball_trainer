@@ -1,10 +1,11 @@
+from unittest.mock import patch
+
 from dash.testing.application_runners import import_app, wait
-from selenium.webdriver.common.by import By
-from dash import Dash, html
 from dash.testing.browser import Browser
 
 
-def test_login_logout(dash_duo: Browser, disable_authentication):
+@patch("requests.post")
+def test_login_logout(mock_requests, dash_duo: Browser, disable_authentication):
     # dont forget to run api
     app = import_app("bball_trainer.dashboard.app")
     dash_duo.start_server(app)
@@ -24,17 +25,19 @@ def test_login_logout(dash_duo: Browser, disable_authentication):
 
     # connect
     username_input.send_keys("localadmin")
-    password_input.send_keys("localadmin")
+    password_input.send_keys("dummy")
+    mock_response = mock_requests.return_value
+    mock_response.status_code = 202
+    mock_response.json.return_value = {"pseudo": "localadmin", "connected": True}
     login_button.click()
 
     # check buttons
-    # assert username_input.text == "localadmin"
     wait.until(lambda: logout_button.is_displayed(), timeout=5)
     assert not login_button.is_displayed()
     assert "form-control is-valid" in username_input.get_attribute("class")
     assert "form-control is-valid" in password_input.get_attribute("class")
     assert dash_duo.wait_for_text_to_equal("#usernameBox", "localadmin")
-    assert dash_duo.wait_for_text_to_equal("#passwordBox", "localadmin")
+    assert dash_duo.wait_for_text_to_equal("#passwordBox", "dummy")
 
     # logout
     logout_button.click()
@@ -48,6 +51,9 @@ def test_login_logout(dash_duo: Browser, disable_authentication):
     # wrong
     username_input.send_keys("dummy")
     password_input.send_keys("dummy")
+    mock_response = mock_requests.return_value
+    mock_response.status_code = 404
+    mock_response.json.return_value = {"pseudo": "dummy", "connected": False}
     login_button.click()
     assert dash_duo.wait_for_contains_class("#usernameBox", "is-invalid")
     assert dash_duo.wait_for_contains_class("#passwordBox", "is-invalid")

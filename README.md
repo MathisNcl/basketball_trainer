@@ -25,6 +25,15 @@ Have fun!
 
 For now, there is no connection between User table and dashboard, facing some issues so ony http login in dashnboard.
 
+## Testing Dash
+
+In order to test dash app, you will have to download a ChromeDriver from [here](https://chromedriver.chromium.org/downloads). For Max OSX users, follow instructions:
+
+* Paste the unzipped file into *usr/local/bin* (to see it into your finder go to macintosh HD and press `CMD`+ `MAJ`+ `.`)
+* Then `CTRL` click on it and open it 
+* Accept to trust
+
+You can now run dash tests!
 ## Credits 
 
 Thanks to Yannick Chabbert with whom I worked and learned a lot.

@@ -1,4 +1,5 @@
 from typing import Generator
+from unittest.mock import MagicMock
 
 import pytest
 from sqlalchemy.engine import Engine
@@ -10,7 +11,6 @@ from bball_trainer.api.main import app
 from bball_trainer.models import Base
 from bball_trainer.models.database import SessionScoped
 from tests.utils.db import configure_sessionmakers, init_db
-from unittest.mock import MagicMock
 
 
 @pytest.fixture
@@ -90,13 +90,9 @@ def test_client(session_db) -> TestClient:
 
 @pytest.fixture
 def disable_authentication(monkeypatch):
-    # Mock the BasicAuth object and its methods
     basic_auth_mock = MagicMock()
     monkeypatch.setattr("dash_auth.BasicAuth", basic_auth_mock)
 
-    # Optionally, you can mock specific methods of the BasicAuth object
-    # For example, to disable the authentication prompt, you can mock the `is_authorized` method
     basic_auth_mock.return_value.is_authorized.return_value = True
 
-    # Yield to allow the tests to run
     yield
