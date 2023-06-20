@@ -109,7 +109,6 @@ def show_modal_signin(
     if ctx.triggered_id == "signInButton":
         return True, ""
     elif ctx.triggered_id == "modal_submit_button":
-        # TODO: check response
         response: requests.Response = requests.post(
             url=f"{URL}/user/",
             json={"pseudo": username, "last_name": lastname, "first_name": firstname, "age": age, "password": password},
@@ -131,7 +130,7 @@ def display_card_infos(logoutButton: bool, username: str) -> Any:
     if logoutButton is False:
         return dbc.Container(
             [
-                html.H1("Enhance your handles!"),
+                html.H1("Enhance your handles!", id="title-page"),
                 html.Hr(),
                 dbc.Row(
                     [
@@ -161,9 +160,10 @@ def display_card_infos(logoutButton: bool, username: str) -> Any:
     ],
 )
 def launch_game(n_start: int, time: int, difficulty: str, hand_constraint: bool) -> str:
-    script_path = settings.PACKAGE_DIR / "game.py"
     # TODO: add args
-    call(["python3", script_path])
+    if ctx.triggered_id == "startingButton":
+        script_path = settings.PACKAGE_DIR / "game.py"
+        call(["python3", script_path])
 
     return ""
 

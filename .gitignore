@@ -16,5 +16,6 @@ pytest.ini
 *.egg-info/
 
 .coverage
+.coverage*
 .env
 .tox
