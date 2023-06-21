@@ -1,8 +1,8 @@
-from tests.utils.factories import UserFactory, GameRecordFactory
 import pytest
 from sqlalchemy.exc import SQLAlchemyError
 
 from bball_trainer.crud import game_record as crud_gr
+from tests.utils.factories import GameRecordFactory, UserFactory
 
 
 def test_delete_user(session_db, test_client):
@@ -10,7 +10,7 @@ def test_delete_user(session_db, test_client):
     user_id = db_user.id
     GameRecordFactory(user_id=user_id)
 
-    response = test_client.delete(url=f"user/{user_id}")
+    response = test_client.delete(url=f"user/{user_id}/")
 
     assert response.status_code == 204
 
@@ -23,7 +23,7 @@ def test_delete_user(session_db, test_client):
 
 
 def test_delete_user_unknown_id(test_client):
-    response = test_client.delete(url="user/100")
+    response = test_client.delete(url="user/100/")
 
     assert response.status_code == 404
 

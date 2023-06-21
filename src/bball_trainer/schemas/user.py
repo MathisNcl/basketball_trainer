@@ -29,3 +29,14 @@ class UserUpdate(BaseModel):
     first_name: Optional[str]
     age: Optional[int] = Field(ge=13)
     password: Optional[str]
+
+
+class UserLogin(BaseModel):
+    pseudo: str
+    password: str
+
+
+class LoginResult(BaseModel):
+    id: int
+    pseudo: str
+    connected: bool

@@ -56,11 +56,25 @@ jobs:
             pip install flake8 pytest
       # - name: Lint
       #   run: bash scripts/lint.sh
+      - name: Install Chrome
+        run: |
+          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+          sudo dpkg -i google-chrome-stable_current_amd64.deb
+          sudo apt-get -f install
+      - name: Install Chrome Driver
+        run: |
+          LATEST=$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE)
+          wget https://chromedriver.storage.googleapis.com/$LATEST/chromedriver_linux64.zip
+          unzip chromedriver_linux64.zip
+          sudo mv chromedriver /usr/local/bin/
       - name: Test
-        run: pytest -v
+        run: pytest -m "not slow" -v
         env:
           POSTGRES_HOST: localhost
           POSTGRES_PORT: 5432
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DBNAME: postgres
+      - name: Test dashboard
+        run: pytest tests/dashboard/ --webdriver=Chrome --headless
+      

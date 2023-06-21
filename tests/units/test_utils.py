@@ -59,7 +59,7 @@ def test_getArea(box: List[int], points: bool, expected: float) -> None:
 
 def test_getArea_type_error() -> None:
     with pytest.raises(TypeError):
-        getArea("box", True)
+        getArea("box", True)  # type: ignore
 
 
 @pytest.mark.parametrize(

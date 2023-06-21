@@ -1,7 +1,7 @@
+import pytest
+
 from bball_trainer.crud import user as crud_user
 from tests.utils.factories import UserFactory
-import pytest
-from sqlalchemy.exc import IntegrityError
 
 
 def test_create_user(session_db, test_client):
@@ -27,7 +27,7 @@ def test_create_user(session_db, test_client):
     assert db_user.first_name == data["first_name"]
     assert db_user.age == data["age"]
 
-    assert db_user.check_password("blabla") == True
+    assert db_user.check_password("blabla")
 
 
 @pytest.mark.parametrize(

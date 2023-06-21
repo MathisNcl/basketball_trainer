@@ -41,3 +41,12 @@ db_shell: # Lunch an interactive shell inside the Docker Postgres
 # API
 api_run : # Run FastApi main.py
 	uvicorn src.bball_trainer.api.main:app --reload
+
+# dashboard
+dash_run: # Run Dash app.py
+	python src/bball_trainer/dashboard/app.py
+
+new_terminal: # Open a terminal
+	open -a Terminal 
+# all services
+up_api: up api_run # Run services: Docker, FastApi

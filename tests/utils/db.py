@@ -1,10 +1,9 @@
 from typing import cast
 
 import sqlalchemy
+from psycopg2.errorcodes import INVALID_CATALOG_NAME
 from sqlalchemy import text
 from sqlalchemy.engine import URL, Connection, Engine, make_url
-
-from psycopg2.errorcodes import INVALID_CATALOG_NAME
 
 from bball_trainer import settings
 from bball_trainer.models.database import SessionFactory, SessionScoped, create_engine, engine

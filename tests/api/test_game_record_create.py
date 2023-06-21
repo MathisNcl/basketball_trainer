@@ -1,7 +1,5 @@
 from bball_trainer.crud import game_record as crud_gr
 from tests.utils.factories import UserFactory
-import pytest
-from datetime import datetime
 
 
 def test_create_game(session_db, test_client):

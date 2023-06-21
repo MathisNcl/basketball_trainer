@@ -1,7 +1,7 @@
-from tests.utils.factories import UserFactory
-from bball_trainer.crud import user as crud_user
 from bball_trainer.crud import game_record as crud_gr
-from bball_trainer.models import User, GameRecord
+from bball_trainer.crud import user as crud_user
+from bball_trainer.models import GameRecord, User
+from tests.utils.factories import UserFactory
 
 
 def test_user(session_db):

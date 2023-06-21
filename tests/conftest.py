@@ -1,13 +1,15 @@
-import pytest
 from typing import Generator
+from unittest.mock import MagicMock
+
+import pytest
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
-from bball_trainer.models import Base
 from starlette.testclient import TestClient
-from bball_trainer.api.main import app
-from bball_trainer.models.database import SessionScoped
-from bball_trainer import settings
 
+from bball_trainer import settings
+from bball_trainer.api.main import app
+from bball_trainer.models import Base
+from bball_trainer.models.database import SessionScoped
 from tests.utils.db import configure_sessionmakers, init_db
 
 
@@ -84,3 +86,13 @@ def session_db(test_engine) -> Generator[Session, None, None]:
 @pytest.fixture
 def test_client(session_db) -> TestClient:
     yield TestClient(app)
+
+
+@pytest.fixture
+def disable_authentication(monkeypatch):
+    basic_auth_mock = MagicMock()
+    monkeypatch.setattr("dash_auth.BasicAuth", basic_auth_mock)
+
+    basic_auth_mock.return_value.is_authorized.return_value = True
+
+    yield
