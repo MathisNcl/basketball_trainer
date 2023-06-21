@@ -68,10 +68,13 @@ jobs:
           unzip chromedriver_linux64.zip
           sudo mv chromedriver /usr/local/bin/
       - name: Test
-        run: pytest -v
+        run: pytest -m "not slow" -v
         env:
           POSTGRES_HOST: localhost
           POSTGRES_PORT: 5432
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DBNAME: postgres
+      - name: Test dashboard
+        run: pytest tests/dashboard/ --browser=chrome --headless
+      

@@ -1,9 +1,11 @@
 from unittest.mock import patch
 
+import pytest
+from bs4 import BeautifulSoup
 from dash.testing.application_runners import import_app, wait
 from dash.testing.browser import Browser
 
-from bs4 import BeautifulSoup
+pytestmark = pytest.mark.slow
 
 
 @patch("requests.get")

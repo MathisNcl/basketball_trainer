@@ -1,6 +1,4 @@
 from tests.utils.factories import GameRecordFactory, UserFactory
-from bball_trainer.crud import game_record as crud_gr
-from bball_trainer.schemas import GameRecordOut
 
 
 def test_get_games(test_client):
