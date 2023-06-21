@@ -76,5 +76,5 @@ jobs:
           POSTGRES_PASSWORD: postgres
           POSTGRES_DBNAME: postgres
       - name: Test dashboard
-        run: pytest tests/dashboard/ --browser=chrome --headless
+        run: pytest tests/dashboard/ --webdriver=Chrome --headless
       
