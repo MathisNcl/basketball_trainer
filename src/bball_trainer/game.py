@@ -5,8 +5,10 @@ from typing import List, Tuple
 import cv2
 import cvzone
 import numpy as np
+import requests
 import yaml
 
+from bball_trainer import settings
 from bball_trainer.hand_game import HandsDetectorBasketball
 from bball_trainer.random_point import RandomPoint
 from bball_trainer.starting_client import StartingClient
@@ -16,6 +18,7 @@ with open("src/bball_trainer/config.yaml") as f:
     config = yaml.safe_load(f)
 
 parser = argparse.ArgumentParser(description="Basketball game", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument("-u", "--user-id", help="User id", default=1)
 parser.add_argument("-t", "--total-time", help="Game time", default=30)
 parser.add_argument("-d", "--difficulty", help="Game difficulty", default="Easy", choices=["Easy", "Medium", "Hard"])
 parser.add_argument("-hc", "--hand-constraint", help="Whether activate hand constraint or not", default=False)
@@ -103,7 +106,8 @@ while True:
         if starting_client.need_to_save:
             # save info
             # TODO: set a logger
-            print("SAVING")
+            requests.post(url=f"{settings.URL}/game_record/", json={"score": score, "user_id": int(config["user_id"])})
+            print("SAVED")
 
             starting_client.need_to_save = False
         img = end_layout(img, score)

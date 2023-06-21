@@ -14,6 +14,7 @@ def test_login(test_client):
 
     assert response.status_code == 202
     data = response.json()
+    assert data["id"] == 1
     assert data["pseudo"] == "localadmin"
     assert data["connected"]
 
@@ -39,5 +40,6 @@ def test_login_failed(test_client):
 
     data = response.json()
 
+    assert data["id"] == 1
     assert data["pseudo"] == u.pseudo
     assert not (data["connected"])

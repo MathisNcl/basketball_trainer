@@ -3,24 +3,27 @@ from typing import Any, Dict, List, Optional
 
 import dash_auth
 import dash_bootstrap_components as dbc
+import pandas as pd
+import plotly.graph_objs as go
 import requests
-from dash import Dash, Input, Output, State, ctx, html
+from dash import Dash, Input, Output, State, ctx, dcc, html
+from dash.exceptions import PreventUpdate
 from flask import Flask
 
 from bball_trainer import settings
-from bball_trainer.dashboard import controls, main_page
+from bball_trainer.dashboard import controls, main_page, profile
 
 server = Flask(__name__)
 # FIXME: add a real user managing
 VALID_USERNAME_PASSWORD_PAIRS = {"localadmin": "localadmin"}
-URL: str = "http://localhost:8000"
-
+USER_ID: int = 9999999
 app = Dash(
     __name__,
     server=server,
     title="Basketball Trainer",
     update_title="Loading...",
     external_stylesheets=[dbc.themes.BOOTSTRAP],
+    suppress_callback_exceptions=True,
 )
 app.css.config.serve_locally = True
 
@@ -37,14 +40,11 @@ app.layout = html.Div([dbc.Row(id="topPageContent", children=main_page.layout), 
         Output("usernameBox", "disabled"),
         Output("passwordBox", "disabled"),
         Output("loginButton", "hidden"),
-        Output("loginButton", "n_clicks"),
         Output("logoutButton", "hidden"),
-        Output("logoutButton", "n_clicks"),
         Output("usernameBox", "value"),
         Output("usernameBox", "className"),
         Output("passwordBox", "value"),
         Output("passwordBox", "className"),
-        Output("passwordBox", "n_submit"),
         Output("signInButton", "hidden"),
     ],
     [Input("loginButton", "n_clicks"), Input("passwordBox", "n_submit"), Input("logoutButton", "n_clicks")],
@@ -52,27 +52,21 @@ app.layout = html.Div([dbc.Row(id="topPageContent", children=main_page.layout), 
 )
 def login_logout(login_click: int, passwordSubmit: int, logout_click: int, username: str, password: str) -> List[Any]:
     response: requests.Response = requests.post(
-        url=f"{URL}/user/login/",
+        url=f"{settings.URL}/user/login/",
         json={"pseudo": username, "password": password},
     )
     data: Dict[str, Any] = response.json()
-    if login_click > 0 or passwordSubmit > 0:
+    if ctx.triggered_id in ["loginButton", "passwordBox"]:
         if response.status_code == 202 and data["connected"]:
-            return [True] * 3 + [
-                0,
-                False,
-                0,
-                username,
-                "form-control is-valid",
-                password,
-                "form-control is-valid",
-                0,
-                True,
-            ]
+            global USER_ID
+            USER_ID = data["id"]
+            return [True] * 3 + [False, username, "form-control is-valid", password, "form-control is-valid", True]
         else:
-            return [False] * 3 + [0, True, 0, "", "form-control is-invalid", "", "form-control is-invalid", 0, False]
-
-    return [False] * 3 + [0, True, 0, "", "form-control", "", "form-control", 0, False]
+            return [False] * 3 + [True, "", "form-control is-invalid", "", "form-control is-invalid", False]
+    elif ctx.triggered_id == "logoutButton":
+        return [False] * 3 + [True, "", "form-control", "", "form-control", False]
+    else:
+        raise PreventUpdate
 
 
 ################################################################################
@@ -110,7 +104,7 @@ def show_modal_signin(
         return True, ""
     elif ctx.triggered_id == "modal_submit_button":
         response: requests.Response = requests.post(
-            url=f"{URL}/user/",
+            url=f"{settings.URL}/user/",
             json={"pseudo": username, "last_name": lastname, "first_name": firstname, "age": age, "password": password},
         )
         if response.status_code != 201:
@@ -135,10 +129,26 @@ def display_card_infos(logoutButton: bool, username: str) -> Any:
                 dbc.Row(
                     [
                         dbc.Col(controls.layout, md=4),
-                        # dbc.Col(dcc.Graph(id="progession-graph"), md=8),
+                        dbc.Col(dcc.Graph(id="progession-graph"), md=8),
                         html.Div(id="useless"),
                     ],
                     align="center",
+                ),
+                dbc.Row(
+                    [
+                        dbc.Col(profile.layout, width=4),
+                        dbc.Col(
+                            html.Button(
+                                children="Reload",
+                                n_clicks=0,
+                                type="submit",
+                                id="reloadButton",
+                                className="btn btn-primary",
+                            ),
+                            width=1,
+                        ),
+                        dbc.Col(html.H4("Leaderboard is coming soon...")),
+                    ]
                 ),
             ],
             fluid=True,
@@ -160,12 +170,72 @@ def display_card_infos(logoutButton: bool, username: str) -> Any:
     ],
 )
 def launch_game(n_start: int, time: int, difficulty: str, hand_constraint: bool) -> str:
-    # TODO: add args
     if ctx.triggered_id == "startingButton":
         script_path = settings.PACKAGE_DIR / "game.py"
-        call(["python3", script_path, "-t", str(time), "-d", difficulty, "-hc", str(hand_constraint)])
+        call(
+            ["python3", script_path, "-u", str(USER_ID), "-t", str(time), "-d", difficulty, "-hc", str(hand_constraint)]
+        )
 
     return ""
+
+
+################################################################################
+# Fill profile
+################################################################################
+@app.callback(
+    [
+        Output("profile_id", "children"),
+        Output("profile_username", "children"),
+        Output("profile_lastname", "children"),
+        Output("profile_firstname", "children"),
+        Output("profile_age", "children"),
+        Output("profile_date", "children"),
+    ],
+    [Input("logoutButton", "hidden")],
+)
+def show_profile(logout_h: bool) -> tuple[int, str, str, str, Optional[int], str]:
+    if logout_h is False:
+        # requests
+        response: requests.Response = requests.get(
+            url=f"{settings.URL}/user/{USER_ID}/",
+        )
+        data = response.json()
+        return (data["id"], data["pseudo"], data["last_name"], data["first_name"], data["age"], data["created_at"])
+    else:
+        raise PreventUpdate
+
+
+################################################################################
+# Output graph games
+################################################################################
+@app.callback(
+    Output("progession-graph", "figure"),
+    [Input("logoutButton", "hidden"), Input("reloadButton", "n_clicks")],
+)
+def show_graph(logout_h: bool, reload_n: int) -> Any:
+    if ctx.triggered_id == "reloadButton" or logout_h is False:
+        # requests
+        response: requests.Response = requests.get(
+            url=f"{settings.URL}/game_record/{USER_ID}/",
+        )
+        df = pd.DataFrame(response.json())
+        data = [
+            go.Scatter(
+                x=[i for i in range(len(df))],
+                y=df["score"],
+                mode="lines+markers",
+                text=df["created_at"],
+                marker={"size": 8},
+                hoverinfo="text+y",
+            )
+        ]
+        layout = {
+            "xaxis": {"title": "Games", "showticklabels": False},
+            "yaxis": {"title": "Score", "tick0": 0, "dtick": 1},
+        }
+        return go.Figure(data=data, layout=layout)
+    else:
+        raise PreventUpdate
 
 
 if __name__ == "__main__":

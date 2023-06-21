@@ -4,8 +4,9 @@ from dash.testing.application_runners import import_app, wait
 from dash.testing.browser import Browser
 
 
+@patch("requests.get")
 @patch("requests.post")
-def test_login_logout(mock_requests, dash_duo: Browser, disable_authentication):
+def test_login_logout(mock_requests_post, mock_requests_get, dash_duo: Browser, disable_authentication):
     app = import_app("bball_trainer.dashboard.app")
     dash_duo.start_server(app)
 
@@ -27,9 +28,18 @@ def test_login_logout(mock_requests, dash_duo: Browser, disable_authentication):
     # connect
     username_input.send_keys("localadmin")
     password_input.send_keys("dummy")
-    mock_response = mock_requests.return_value
+    mock_response = mock_requests_post.return_value
     mock_response.status_code = 202
-    mock_response.json.return_value = {"pseudo": "localadmin", "connected": True}
+    mock_response.json.return_value = {"id": 1, "pseudo": "localadmin", "connected": True}
+
+    mock_response_get = mock_requests_get.return_value
+    mock_response_get.status_code = 200
+    mocked_data = [
+        {"score": 10, "user_id": 1, "id": 7, "created_at": "2023-06-20T13:19:04.313417"},
+        {"score": 11, "user_id": 1, "id": 8, "created_at": "2023-06-20T13:19:06.891685"},
+        {"score": 12, "user_id": 1, "id": 9, "created_at": "2023-06-20T13:44:59.605087"},
+    ]
+    mock_response_get.json.return_value = mocked_data
     login_button.click()
 
     # check buttons
@@ -40,6 +50,12 @@ def test_login_logout(mock_requests, dash_duo: Browser, disable_authentication):
     assert dash_duo.wait_for_text_to_equal("#usernameBox", "localadmin")
     assert dash_duo.wait_for_text_to_equal("#passwordBox", "dummy")
     assert dash_duo.wait_for_text_to_equal("#title-page", "Enhance your handles!")
+    # graph
+    graph_element = dash_duo.wait_for_element("#progession-graph")
+    assert graph_element.is_displayed()
+    # graph_data = graph_element.get_property("data")
+    # for i, data_point in enumerate(graph_data[0]["y"]):
+    #     assert data_point == mocked_data[i]["score"]
 
     # logout
     logout_button.click()
@@ -54,7 +70,7 @@ def test_login_logout(mock_requests, dash_duo: Browser, disable_authentication):
     username_input.send_keys("dummy")
     password_input.send_keys("dummy")
     mock_response.status_code = 404
-    mock_response.json.return_value = {"pseudo": "dummy", "connected": False}
+    mock_response.json.return_value = {"id": 2, "pseudo": "dummy", "connected": False}
     login_button.click()
     assert dash_duo.wait_for_contains_class("#usernameBox", "is-invalid")
     assert dash_duo.wait_for_contains_class("#passwordBox", "is-invalid")

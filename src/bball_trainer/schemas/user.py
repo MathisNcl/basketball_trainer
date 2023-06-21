@@ -37,5 +37,6 @@ class UserLogin(BaseModel):
 
 
 class LoginResult(BaseModel):
+    id: int
     pseudo: str
     connected: bool

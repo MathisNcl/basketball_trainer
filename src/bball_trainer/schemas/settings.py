@@ -23,6 +23,8 @@ class Settings(BaseSettings):
 
     SECRET_KEY: str = "abc"
 
+    URL: str = "http://localhost:8000"
+
     @validator("POSTGRES_URI", pre=True)
     def assemble_db(cls, v: Optional[str], values: dict[str, Any]) -> str:
         return PostgresDsn.build(

@@ -49,4 +49,4 @@ dash_run: # Run Dash app.py
 new_terminal: # Open a terminal
 	open -a Terminal 
 # all services
-up_all: up api_run dash_run # Run all services: Docker, FastApi, Dash
+up_api: up api_run # Run services: Docker, FastApi

@@ -71,7 +71,7 @@ async def login_user(user: UserLogin, db: Session = Depends(get_db)) -> Dict[str
     user_db: Optional[models.User] = crud_user.get_user(db=db, pseudo=user.pseudo)
     if not user_db:
         raise HTTPException(status_code=404, detail=f"Pseudo {user.pseudo} does not exist.")
-    return {"pseudo": user.pseudo, "connected": user_db.check_password(user.password)}
+    return {"id": user_db.id, "pseudo": user.pseudo, "connected": user_db.check_password(user.password)}
 
 
 @app.patch(
