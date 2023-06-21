@@ -56,12 +56,11 @@ jobs:
             pip install flake8 pytest
       # - name: Lint
       #   run: bash scripts/lint.sh
-       - name: Install Chrome
+      - name: Install Chrome
         run: |
           wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
           sudo dpkg -i google-chrome-stable_current_amd64.deb
           sudo apt-get -f install
-
       - name: Install Chrome Driver
         run: |
           LATEST=$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE)
