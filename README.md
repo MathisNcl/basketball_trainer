@@ -1,4 +1,4 @@
-![Version](https://img.shields.io/badge/python-3.9.16-brightgreen)
+![Version](https://img.shields.io/badge/python-3.9-brightgreen)
 
 # Basket-ball trainer
 
@@ -29,7 +29,7 @@ For now, there is no connection between User table and dashboard, facing some is
 ## Installation
 
 - Clone repo
-- Create a virtual env in python 3.9.16 and `make deps`
+- Create a virtual env in python 3.9 and `make deps`
 - To run all in local you will need two terminal and docker desktop in your laptop:
   - `make up_api` to run postgres in docker and launch api (you can check it at <http://localhost/8000/docs>)
   - in an other terminal, run `make dash_run` and enjoy at <http://localhost/8050>

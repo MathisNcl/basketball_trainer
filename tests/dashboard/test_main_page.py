@@ -3,6 +3,8 @@ from unittest.mock import patch
 from dash.testing.application_runners import import_app, wait
 from dash.testing.browser import Browser
 
+from bs4 import BeautifulSoup
+
 
 @patch("requests.get")
 @patch("requests.post")
@@ -38,6 +40,8 @@ def test_login_logout(mock_requests_post, mock_requests_get, dash_duo: Browser, 
         {"score": 10, "user_id": 1, "id": 7, "created_at": "2023-06-20T13:19:04.313417"},
         {"score": 11, "user_id": 1, "id": 8, "created_at": "2023-06-20T13:19:06.891685"},
         {"score": 12, "user_id": 1, "id": 9, "created_at": "2023-06-20T13:44:59.605087"},
+        {"score": 13, "user_id": 1, "id": 10, "created_at": "2023-06-20T13:45:59.605087"},
+        {"score": 14, "user_id": 1, "id": 11, "created_at": "2023-06-20T13:46:59.605087"},
     ]
     mock_response_get.json.return_value = mocked_data
     login_button.click()
@@ -50,12 +54,19 @@ def test_login_logout(mock_requests_post, mock_requests_get, dash_duo: Browser, 
     assert dash_duo.wait_for_text_to_equal("#usernameBox", "localadmin")
     assert dash_duo.wait_for_text_to_equal("#passwordBox", "dummy")
     assert dash_duo.wait_for_text_to_equal("#title-page", "Enhance your handles!")
+
     # graph
     graph_element = dash_duo.wait_for_element("#progession-graph")
     assert graph_element.is_displayed()
-    # graph_data = graph_element.get_property("data")
-    # for i, data_point in enumerate(graph_data[0]["y"]):
-    #     assert data_point == mocked_data[i]["score"]
+    soup = BeautifulSoup(graph_element.get_attribute("innerHTML"), "html.parser")
+    points = soup.select("path.point")
+    assert len(points) == len(mocked_data)
+
+    # leaderboard
+    leaderboard_element = dash_duo.wait_for_element("#leaderboard-table")
+    soup = BeautifulSoup(leaderboard_element.get_attribute("innerHTML"), "html.parser")
+    assert leaderboard_element.is_displayed()
+    assert len(soup.select("tr")) == len(mocked_data) + 1
 
     # logout
     logout_button.click()

@@ -132,3 +132,14 @@ async def get_all_games_user(user_id: int, db: Session = Depends(get_db)) -> Opt
         raise HTTPException(status_code=404, detail=f"{user_id} is not a known id.")
     db_games: Optional[List[models.GameRecord]] = crud_gr.get_all_games_user(db=db, user_id=user_id)
     return db_games
+
+
+@app.get(
+    "/leaderboard/",
+    response_model=List[GameRecordOut],
+    description="Récupération des 5 meilleurs scores",
+    tags=["leaderboard"],
+)
+async def get_top5_scores(db: Session = Depends(get_db), nb: int = 5) -> List[models.GameRecord]:
+    top = crud_gr.get_top_nb_score(db=db, nb=nb)
+    return top

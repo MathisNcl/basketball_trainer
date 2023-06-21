@@ -6,7 +6,7 @@ import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.graph_objs as go
 import requests
-from dash import Dash, Input, Output, State, ctx, dcc, html
+from dash import Dash, Input, Output, State, ctx, dcc, html, dash_table
 from dash.exceptions import PreventUpdate
 from flask import Flask
 
@@ -147,7 +147,21 @@ def display_card_infos(logoutButton: bool, username: str) -> Any:
                             ),
                             width=1,
                         ),
-                        dbc.Col(html.H4("Leaderboard is coming soon...")),
+                        dbc.Col(
+                            dash_table.DataTable(
+                                id="leaderboard-table",
+                                columns=[
+                                    {"name": "Index", "id": "index"},
+                                    {"name": "User ID", "id": "user_id"},
+                                    {"name": "Score", "id": "score"},
+                                    {"name": "Created At", "id": "created_at"},
+                                ],
+                                style_table={"height": "300px", "overflowY": "scroll"},
+                                style_data={"whiteSpace": "normal", "height": "auto"},
+                                style_cell={"textAlign": "left"},
+                                style_header={"fontWeight": "bold"},
+                            )
+                        ),
                     ]
                 ),
             ],
@@ -234,6 +248,26 @@ def show_graph(logout_h: bool, reload_n: int) -> Any:
             "yaxis": {"title": "Score", "tick0": 0, "dtick": 1},
         }
         return go.Figure(data=data, layout=layout)
+    else:
+        raise PreventUpdate
+
+
+################################################################################
+# Output leaderboard
+################################################################################
+@app.callback(
+    Output("leaderboard-table", "data"),
+    [Input("logoutButton", "hidden"), Input("reloadButton", "n_clicks")],
+)
+def show_leaderboard(logout_h: bool, reload_n: int) -> Any:
+    if ctx.triggered_id == "reloadButton" or logout_h is False:
+        # requests
+        response: requests.Response = requests.get(
+            url=f"{settings.URL}/leaderboard/",
+        )
+        df = pd.DataFrame(response.json())
+        df["index"] = range(1, 6)
+        return df.to_dict("records")
     else:
         raise PreventUpdate
 

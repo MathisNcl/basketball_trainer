@@ -24,3 +24,7 @@ def get_game(db: Session, id: int) -> Optional[GameRecord]:
 
 def get_all_games_user(db: Session, user_id: int) -> List[GameRecord]:
     return db.scalars(select(GameRecord).filter(GameRecord.user_id == user_id)).all()  # type: ignore
+
+
+def get_top_nb_score(db: Session, nb: int) -> List[GameRecord]:
+    return db.scalars(select(GameRecord).order_by(GameRecord.score.desc()).limit(nb)).all()  # type: ignore
