@@ -11,19 +11,25 @@ def test_instantiate(config_point) -> None:
 
 
 @pytest.mark.parametrize(
-    "mocked_point, expected",
+    "mocked_point, hand_constraint, change_side, expected",
     [
-        ((120, 90), True),
-        ((15, 100), False),
+        ((120, 90), False, False, True),
+        ((15, 100), False, False, False),
+        ((120, 90), True, False, False),
+        ((120, 90), True, True, True),
     ],
 )
-def test_in_bbox(config_point, hand, mocked_point, expected) -> None:
+def test_in_bbox(config_point, hand, mocked_point, hand_constraint, change_side, expected) -> None:
     # kind of a mock
     point = RandomPoint(**config_point)
     point.cx = mocked_point[0]
     point.cy = mocked_point[1]
+    point.side = point.get_side()
 
-    assert point.in_bbox(hand) == expected
+    if change_side:
+        hand["type"] = "Left"
+
+    assert point.in_bbox(hand, hand_constraint=hand_constraint) == expected
 
 
 def test_draw_circle(config_point) -> None:

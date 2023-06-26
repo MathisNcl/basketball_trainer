@@ -30,7 +30,7 @@ class StartingClient:
 
     def starting_layout(self, hands: List[dict], img: np.ndarray) -> np.ndarray:
         """
-        Incruste hands and detected whether the game starts
+        Incruste hands and detect whether the game starts
 
         Args:
             hands (List[dict]): List of dict from HandDetector containing every hand detected

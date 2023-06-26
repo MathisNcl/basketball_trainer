@@ -20,9 +20,9 @@ Have fun!
 - [X] save data
 - [X] fastapi
 - [X] dashboard
-- [ ] leaderboard
+- [X] leaderboard
 - [ ] track the ball and add new rules
-- [ ] game settings (difficulty and hand constraint)
+- [X] game settings (difficulty and hand constraint)
 
 For now, there is no connection between User table and dashboard, facing some issues so ony http login in dashnboard.
 
