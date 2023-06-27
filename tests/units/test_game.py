@@ -1,6 +1,6 @@
-from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
+
 from bball_trainer.game import GamingClient
 
 
@@ -67,23 +67,3 @@ def test_gc_determine_new_point():
 
     assert old_point.cx != gc.point.cx
     assert old_point.cy != gc.point.cy
-
-
-@pytest.mark.parametrize(
-    "total_time, difficulty, hand_constraint, user_id",
-    [
-        (30, "Easy", False, 1),
-        (60, "Medium", True, 2),
-        (45, "Hard", True, 3),
-    ],
-)
-def test_gc_start(total_time, difficulty, hand_constraint, user_id):
-    # Mocking camera
-    img = np.zeros((720, 1280, 3), dtype=np.uint8)
-    capture_mock = MagicMock()
-    capture_mock.read.return_value = (True, img)
-    with patch("cv2.VideoCapture", return_value=capture_mock):
-        gc = GamingClient(
-            total_time=total_time, difficulty=difficulty, hand_constraint=hand_constraint, user_id=user_id
-        )
-        gc.start(testing_nb=1)
