@@ -1,6 +1,5 @@
-import argparse
 import time
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import cv2
 import cvzone
@@ -14,110 +13,179 @@ from bball_trainer.random_point import RandomPoint
 from bball_trainer.starting_client import StartingClient
 from bball_trainer.utils import end_layout, points_distance_is_enough
 
-with open("src/bball_trainer/config.yaml") as f:
-    config = yaml.safe_load(f)
 
-parser = argparse.ArgumentParser(description="Basketball game", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument("-u", "--user-id", help="User id", default=1)
-parser.add_argument("-t", "--total-time", help="Game time", default=30)
-parser.add_argument("-d", "--difficulty", help="Game difficulty", default="Easy", choices=["Easy", "Medium", "Hard"])
-parser.add_argument("-hc", "--hand-constraint", help="Whether activate hand constraint or not", default=False)
+class GamingClient:
+    """GamingClient with many methods to implement the basketball handle game
 
-args = parser.parse_args()
-config_args = vars(args)
-config_args["total_time"] = int(config_args["total_time"])
-config_args["hand_constraint"] = bool(config_args["hand_constraint"])
-config.update(config_args)
+    Configured by config.yaml
+    """
 
-# Webcam
-cap = cv2.VideoCapture(0)
-cap.set(3, config["cam"]["h"])
-cap.set(4, config["cam"]["v"])
-img_quart_h: int = int(config["cam"]["h"] / 4)
-img_quart_v: int = int(config["cam"]["v"] / 4)
+    def __init__(self, total_time: int, difficulty: str, hand_constraint: bool, user_id: int):
+        with open("src/bball_trainer/config.yaml") as f:
+            self.config = yaml.safe_load(f)
+        self.img_quart_h: int = int(self.config["cam"]["h"] / 4)
+        self.img_quart_v: int = int(self.config["cam"]["v"] / 4)
+        self.nb_img: int = 0
 
-# Hand Detector
+        # Hand Detector
+        self.detector: HandsDetectorBasketball = HandsDetectorBasketball(
+            detectionCon=self.config["hand_detector"]["detectionCon"], maxHands=self.config["hand_detector"]["maxHands"]
+        )
 
-detector: HandsDetectorBasketball = HandsDetectorBasketball(
-    detectionCon=config["hand_detector"]["detectionCon"], maxHands=config["hand_detector"]["maxHands"]
-)
+        # Game Variables
+        self.config_point = self.config["config_point"]
+        self.point: RandomPoint = RandomPoint(**self.config_point)
+        self.color: Tuple[int, int, int] = self.config["color"]
+        self.counter: int = 0
+        self.score: int = 0
+        self.totalTime: int = total_time
 
-# Game Variables
-config_point = config["config_point"]
-point: RandomPoint = RandomPoint(**config_point)
-color: Tuple[int, int, int] = config["color"]
-counter: int = 0
-score: int = 0
-totalTime: int = config["total_time"]
-waiting_for_start: bool = True
+        # Starting Client
+        left_hand: np.ndarray = cv2.imread(self.config["left_hand"]["path"], cv2.IMREAD_UNCHANGED)
+        size_y: int = self.config["left_hand"]["size_y"]
+        size_x: int = self.config["left_hand"]["size_x"]
+        left_hand = cv2.resize(left_hand, (size_y, size_x))
 
-left_hand: np.ndarray = cv2.imread(config["left_hand"]["path"], cv2.IMREAD_UNCHANGED)
-size_y: int = config["left_hand"]["size_y"]
-size_x: int = config["left_hand"]["size_x"]
-left_hand = cv2.resize(left_hand, (size_y, size_x))
+        begin_left: List[int] = [int(self.img_quart_h - size_x / 2), int(self.img_quart_v - size_y / 2)]
+        begin_right: List[int] = [int(3 * self.img_quart_h - size_x / 2), int(self.img_quart_v - size_y / 2)]
 
-begin_left: List[int] = [int(img_quart_h - size_x / 2), int(img_quart_v - size_y / 2)]
-begin_right: List[int] = [int(3 * img_quart_h - size_x / 2), int(img_quart_v - size_y / 2)]
+        self.starting_client: StartingClient = StartingClient(begin_left, begin_right, left_hand)
 
-starting_client: StartingClient = StartingClient(begin_left, begin_right, left_hand)
+        # init constructor
+        self.difficulty: str = difficulty
+        self.difficulty_time: Optional[int] = self.config["difficulty_time"][self.difficulty]
+        self.hand_constraint: bool = hand_constraint
+        self.user_id: int = user_id
 
-# Loop
-while True:
-    success, img = cap.read()
-    img: np.ndarray = cv2.flip(img, 1)  # type: ignore
+    def turn_on_camera(self) -> None:
+        """Only tu turn on camera instead of doing it in contstructor"""
+        # Webcam
+        self.cap = cv2.VideoCapture(0)
+        self.cap.set(3, self.config["cam"]["h"])
+        self.cap.set(4, self.config["cam"]["v"])
 
-    hands: List[dict] = detector.findHands(img, draw=False)
-    if starting_client.waiting_for_start:
-        img = starting_client.starting_layout(hands, img)
+    def start(self, testing_nb: Optional[bool] = None) -> None:
+        """Start the game by reading camera output"""
 
-    elif time.time() - starting_client.timeStart < totalTime:
+        self.turn_on_camera()
+        # Loop
+        while True:
+            _, img = self.cap.read()
+            self.nb_img += 1
+            img: np.ndarray = cv2.flip(img, 1)  # type: ignore
+
+            hands: List[dict] = self.detector.findHands(img, draw=False, flipType=False)
+            if self.starting_client.waiting_for_start:
+                img = self.starting_client.starting_layout(hands, img)
+
+            elif time.time() - self.starting_client.timeStart < self.totalTime:
+                self.hand_handler(hands, img)
+
+                self.counter_difficulty_handler()
+
+                # Game HUD
+                cvzone.putTextRect(
+                    img,
+                    f"Time: {int(self.totalTime-(time.time()-self.starting_client.timeStart))}",
+                    (1000, 75),
+                    scale=3,
+                    offset=20,
+                )
+                cvzone.putTextRect(img, f"Score: {str(self.score).zfill(2)}", (60, 75), scale=3, offset=20)
+
+                # Draw Button
+                self.point.draw_circle(img, self.color)
+            else:
+                # End game
+                if self.starting_client.need_to_save:
+                    # save info
+                    # TODO: set a logger
+                    requests.post(
+                        url=f"{settings.URL}/game_record/", json={"score": self.score, "user_id": int(self.user_id)}
+                    )
+                    print("SAVED")
+
+                    self.starting_client.need_to_save = False
+                img = end_layout(img, self.score)
+
+            cv2.imshow("Image", img)
+            key = cv2.waitKey(1)
+
+            if key == ord("r"):
+                self.score = 0
+                self.starting_client.reset_client()
+            if key == ord("q") or testing_nb is not None and testing_nb == self.nb_img:
+                break
+        self.stop()
+
+    def hand_handler(self, hands: List[dict], img: np.ndarray) -> None:
+        """Print hands in img and detect whether the counter should be incremented
+
+        Args:
+            hands (List[dict]): List of detected hands
+            img (np.ndarray): Image from the camera
+        """
         if hands:
             for hand in hands:
-                distanceCM = detector.compute_distance(hand=hand)
+                distanceCM = self.detector.compute_distance(hand=hand)
 
                 if distanceCM > 60:
-                    if point.in_bbox(hand):  # type: ignore
-                        counter = 1
-                detector.print_hand(img, hand, distanceCM)
+                    if self.point.in_bbox(hand, hand_constraint=self.hand_constraint):  # type: ignore
+                        self.counter = 1
+                self.detector.print_hand(img, hand, distanceCM)
 
-        if counter:
-            counter += 1
-            if counter == 2:
-                too_close: bool = True
-                while too_close:
-                    candidate_point: RandomPoint = RandomPoint(**config_point)
+    def counter_difficulty_handler(self) -> None:
+        """Increment score if counter is equal to 1 (ie a point is inside a hand) and change the location of the point
+        When difficulty is different then Easy, the point is automatically changed after x number of images red by
+        the webcam device
+        """
+        if self.counter:
+            self.determine_new_point()
+            self.score += 1
+            self.counter = 0
+            self.nb_img = 0
+        # Change point if difficulty
+        elif self.difficulty_time is not None and self.nb_img + 1 >= int(self.difficulty_time):
+            self.determine_new_point()
+            self.nb_img = 0
 
-                    too_close = points_distance_is_enough(candidate_point.cx, candidate_point.cy, point.cx, point.cy)
+    def determine_new_point(self) -> None:
+        """Methods which compute a new random point"""
+        too_close: bool = True
+        while too_close:
+            candidate_point: RandomPoint = RandomPoint(**self.config_point)
 
-                point = candidate_point
-                score += 1
-                counter = 0
+            too_close = points_distance_is_enough(candidate_point.cx, candidate_point.cy, self.point.cx, self.point.cy)
 
-        # Draw Button
-        point.draw_circle(img, color)
+        self.point = candidate_point
 
-        # Game HUD
-        cvzone.putTextRect(
-            img, f"Time: {int(totalTime-(time.time()-starting_client.timeStart))}", (1000, 75), scale=3, offset=20
-        )
-        cvzone.putTextRect(img, f"Score: {str(score).zfill(2)}", (60, 75), scale=3, offset=20)
-    else:
-        # End game
-        if starting_client.need_to_save:
-            # save info
-            # TODO: set a logger
-            requests.post(url=f"{settings.URL}/game_record/", json={"score": score, "user_id": int(config["user_id"])})
-            print("SAVED")
+    def stop(self) -> None:
+        """Stop camera getter"""
+        if self.cap:
+            self.cap.release()
+        cv2.destroyAllWindows()
 
-            starting_client.need_to_save = False
-        img = end_layout(img, score)
 
-    cv2.imshow("Image", img)
-    key = cv2.waitKey(1)
+if __name__ == "__main__":  # pragma: nocover
+    import argparse
 
-    if key == ord("r"):
-        score = 0
-        waiting_for_start = True
-        starting_client.reset_client()
-    if key == ord("q"):
-        break
+    parser = argparse.ArgumentParser(
+        description="Basketball game", formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    parser.add_argument("-u", "--user-id", help="User id", default=1)
+    parser.add_argument("-t", "--total-time", help="Game time", default=30)
+    parser.add_argument(
+        "-d", "--difficulty", help="Game difficulty", default="Hard", choices=["Easy", "Medium", "Hard"]
+    )
+    parser.add_argument("-hc", "--hand-constraint", help="Whether activate hand constraint or not", default=False)
+
+    args = parser.parse_args()
+    config_args = vars(args)
+
+    game = GamingClient(
+        int(config_args["total_time"]),
+        config_args["difficulty"],
+        bool(config_args["hand_constraint"]),
+        int(config_args["user_id"]),
+    )  # pragma: nocover
+    game.start()

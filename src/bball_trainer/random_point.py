@@ -21,6 +21,8 @@ class RandomPoint:
         self.cx = self.random_coordinates_x()
         self.cy = random.randint(yfrom, yto)
 
+        self.side: str = self.get_side()
+
     def random_coordinates_x(self) -> int:
         """
         give two coordinates number in the range [from1, to1] or [from2, to2]
@@ -33,7 +35,13 @@ class RandomPoint:
         out: np.ndarray = np.stack((arr1, arr2))
         return np.random.choice(out)
 
-    def in_bbox(self, hand: dict) -> bool:
+    def get_side(self) -> str:
+        if self.cx <= self.xto1:
+            return "Left"
+        else:
+            return "Right"
+
+    def in_bbox(self, hand: dict, hand_constraint: bool = False) -> bool:
         """
         Check whether the point is inside the hand bbox
 
@@ -45,8 +53,13 @@ class RandomPoint:
         """
         inside: bool = False
         x, y, w, h = hand["bbox"]
+
         if x < self.cx < x + w and y < self.cy < y + h:
             inside = True
+
+        if inside and hand_constraint:
+            inside = hand["type"] == self.side
+
         return inside
 
     def draw_circle(self, img: np.ndarray, color: tuple) -> None:

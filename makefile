@@ -12,7 +12,7 @@ deps: # Install deps
 pre: # Run pre-commit hooks on all files
 	pre-commit run --all-files
 cov: # Compute coverage
-	pytest --cov=src --cov-report term-missing
+	pytest --cov=src --cov-report term-missing --headless
 
 report: # Make report cov
 	tox -r

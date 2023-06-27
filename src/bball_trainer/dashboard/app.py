@@ -184,7 +184,8 @@ def display_card_infos(logoutButton: bool, username: str) -> Any:
     ],
 )
 def launch_game(n_start: int, time: int, difficulty: str, hand_constraint: bool) -> str:
-    if ctx.triggered_id == "startingButton":
+    # FIXME: find a way to test it
+    if ctx.triggered_id == "startingButton":  # pragma: nocover
         script_path = settings.PACKAGE_DIR / "game.py"
         call(
             ["python3", script_path, "-u", str(USER_ID), "-t", str(time), "-d", difficulty, "-hc", str(hand_constraint)]
