@@ -21,3 +21,8 @@ left_hand:
   path: assets/left_hand.png
   size_y: 100
   size_x: 150
+
+difficulty_time:
+  Easy: null
+  Medium: 45
+  Hard: 20

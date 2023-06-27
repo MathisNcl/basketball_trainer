@@ -13,7 +13,7 @@ Have fun!
 - [X] V0 : functional game
 - [X] tests
 - [X] tox
-- [ ] 100% coverage
+- [X] 100% coverage (*Not exactly what I wanted, should be improved in another version with raising error and exhaustive cases*)
 - [X] Oriented objects
 - [ ] bonus points
 - [X] github actions
@@ -21,10 +21,8 @@ Have fun!
 - [X] fastapi
 - [X] dashboard
 - [X] leaderboard
-- [ ] track the ball and add new rules
+- [ ] track the ball
 - [X] game settings (difficulty and hand constraint)
-
-For now, there is no connection between User table and dashboard, facing some issues so ony http login in dashnboard.
 
 ## Installation
 

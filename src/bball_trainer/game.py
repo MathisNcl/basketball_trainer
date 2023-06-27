@@ -15,7 +15,7 @@ from bball_trainer.utils import end_layout, points_distance_is_enough
 
 
 class GamingClient:
-    """GamingClient with 2 methods: start and stop
+    """GamingClient with many methods to implement the basketball handle game
 
     Configured by config.yaml
     """
@@ -23,12 +23,9 @@ class GamingClient:
     def __init__(self, total_time: int, difficulty: str, hand_constraint: bool, user_id: int):
         with open("src/bball_trainer/config.yaml") as f:
             self.config = yaml.safe_load(f)
-        # Webcam
-        self.cap = cv2.VideoCapture(0)
-        self.cap.set(3, self.config["cam"]["h"])
-        self.cap.set(4, self.config["cam"]["v"])
         self.img_quart_h: int = int(self.config["cam"]["h"] / 4)
         self.img_quart_v: int = int(self.config["cam"]["v"] / 4)
+        self.nb_img: int = 0
 
         # Hand Detector
         self.detector: HandsDetectorBasketball = HandsDetectorBasketball(
@@ -56,16 +53,25 @@ class GamingClient:
 
         # init constructor
         self.difficulty: str = difficulty
+        self.difficulty_time: Optional[int] = self.config["difficulty_time"][self.difficulty]
         self.hand_constraint: bool = hand_constraint
         self.user_id: int = user_id
 
+    def turn_on_camera(self) -> None:
+        """Only tu turn on camera instead of doing it in contstructor"""
+        # Webcam
+        self.cap = cv2.VideoCapture(0)
+        self.cap.set(3, self.config["cam"]["h"])
+        self.cap.set(4, self.config["cam"]["v"])
+
     def start(self, testing_nb: Optional[bool] = None) -> None:
         """Start the game by reading camera output"""
+
+        self.turn_on_camera()
         # Loop
-        nb_img: int = 0
         while True:
             _, img = self.cap.read()
-            nb_img += 1
+            self.nb_img += 1
             img: np.ndarray = cv2.flip(img, 1)  # type: ignore
 
             hands: List[dict] = self.detector.findHands(img, draw=False, flipType=False)
@@ -73,29 +79,9 @@ class GamingClient:
                 img = self.starting_client.starting_layout(hands, img)
 
             elif time.time() - self.starting_client.timeStart < self.totalTime:
-                if hands:
-                    for hand in hands:
-                        distanceCM = self.detector.compute_distance(hand=hand)
+                self.hand_handler(hands, img)
 
-                        if distanceCM > 60:
-                            if self.point.in_bbox(hand, hand_constraint=self.hand_constraint):  # type: ignore
-                                self.counter = 1
-                        self.detector.print_hand(img, hand, distanceCM)
-
-                if self.counter:
-                    self.counter += 1
-                    if self.counter == 2:
-                        too_close: bool = True
-                        while too_close:
-                            candidate_point: RandomPoint = RandomPoint(**self.config_point)
-
-                            too_close = points_distance_is_enough(
-                                candidate_point.cx, candidate_point.cy, self.point.cx, self.point.cy
-                            )
-
-                        self.point = candidate_point
-                        self.score += 1
-                        self.counter = 0
+                self.counter_difficulty_handler()
 
                 # Game HUD
                 cvzone.putTextRect(
@@ -128,9 +114,50 @@ class GamingClient:
             if key == ord("r"):
                 self.score = 0
                 self.starting_client.reset_client()
-            if key == ord("q") or testing_nb is not None and testing_nb == nb_img:
+            if key == ord("q") or testing_nb is not None and testing_nb == self.nb_img:
                 break
         self.stop()
+
+    def hand_handler(self, hands: List[dict], img: np.ndarray) -> None:
+        """Print hands in img and detect whether the counter should be incremented
+
+        Args:
+            hands (List[dict]): List of detected hands
+            img (np.ndarray): Image from the camera
+        """
+        if hands:
+            for hand in hands:
+                distanceCM = self.detector.compute_distance(hand=hand)
+
+                if distanceCM > 60:
+                    if self.point.in_bbox(hand, hand_constraint=self.hand_constraint):  # type: ignore
+                        self.counter = 1
+                self.detector.print_hand(img, hand, distanceCM)
+
+    def counter_difficulty_handler(self) -> None:
+        """Increment score if counter is equal to 1 (ie a point is inside a hand) and change the location of the point
+        When difficulty is different then Easy, the point is automatically changed after x number of images red by
+        the webcam device
+        """
+        if self.counter:
+            self.determine_new_point()
+            self.score += 1
+            self.counter = 0
+            self.nb_img = 0
+        # Change point if difficulty
+        elif self.difficulty_time is not None and self.nb_img + 1 >= int(self.difficulty_time):
+            self.determine_new_point()
+            self.nb_img = 0
+
+    def determine_new_point(self) -> None:
+        """Methods which compute a new random point"""
+        too_close: bool = True
+        while too_close:
+            candidate_point: RandomPoint = RandomPoint(**self.config_point)
+
+            too_close = points_distance_is_enough(candidate_point.cx, candidate_point.cy, self.point.cx, self.point.cy)
+
+        self.point = candidate_point
 
     def stop(self) -> None:
         """Stop camera getter"""
@@ -139,7 +166,7 @@ class GamingClient:
         cv2.destroyAllWindows()
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: nocover
     import argparse
 
     parser = argparse.ArgumentParser(
@@ -148,7 +175,7 @@ if __name__ == "__main__":
     parser.add_argument("-u", "--user-id", help="User id", default=1)
     parser.add_argument("-t", "--total-time", help="Game time", default=30)
     parser.add_argument(
-        "-d", "--difficulty", help="Game difficulty", default="Easy", choices=["Easy", "Medium", "Hard"]
+        "-d", "--difficulty", help="Game difficulty", default="Hard", choices=["Easy", "Medium", "Hard"]
     )
     parser.add_argument("-hc", "--hand-constraint", help="Whether activate hand constraint or not", default=False)
 
