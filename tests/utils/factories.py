@@ -18,8 +18,8 @@ class UserFactory(BaseFactory):
     class Meta:
         model = models.User
 
-    pseudo = factory.Faker("user_name", locale=settings.LANGUAGE_CODE)
-    password = factory.Faker("swift", locale=settings.LANGUAGE_CODE)
+    pseudo = factory.lazy_attribute(lambda x: f"{faker.user_name()}_test")
+    password = factory.fuzzy.FuzzyText(length=10)
 
     last_name = factory.Faker("last_name", locale=settings.LANGUAGE_CODE)
     first_name = factory.Faker("first_name", locale=settings.LANGUAGE_CODE)
@@ -42,4 +42,7 @@ class GameRecordFactory(BaseFactory):
     class Meta:
         model = models.GameRecord
 
-    score = fuzzy.FuzzyInteger(0, 30)
+    score = fuzzy.FuzzyInteger(1, 30)
+    time = fuzzy.FuzzyInteger(1, 30)
+    point_per_sec = factory.lazy_attribute(lambda x: round(x.score / x.time, 3))
+    difficulty = fuzzy.FuzzyChoice(["Easy", "Medium", "Hard"])

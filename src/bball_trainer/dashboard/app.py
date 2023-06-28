@@ -154,6 +154,8 @@ def display_card_infos(logoutButton: bool, username: str) -> Any:
                                     {"name": "Index", "id": "index"},
                                     {"name": "User ID", "id": "user_id"},
                                     {"name": "Score", "id": "score"},
+                                    {"name": "Time", "id": "time"},
+                                    {"name": "Point per second", "id": "point_per_sec"},
                                     {"name": "Created At", "id": "created_at"},
                                 ],
                                 style_table={"height": "300px", "overflowY": "scroll"},
@@ -267,7 +269,7 @@ def show_leaderboard(logout_h: bool, reload_n: int) -> Any:
             url=f"{settings.URL}/leaderboard/",
         )
         df = pd.DataFrame(response.json())
-        df["index"] = range(1, 6)
+        df["index"] = range(1, len(df) + 1)
         return df.to_dict("records")
     else:
         raise PreventUpdate
