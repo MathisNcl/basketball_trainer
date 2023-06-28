@@ -99,16 +99,23 @@ class GamingClient:
                 # End game
                 if self.starting_client.need_to_save:
                     # save info
-                    # TODO: set a logger
+                    # TODO: set a logger and a check for status code == 201
                     requests.post(
-                        url=f"{settings.URL}/game_record/", json={"score": self.score, "user_id": int(self.user_id)}
+                        url=f"{settings.URL}/game_record/",
+                        json={
+                            "score": self.score,
+                            "user_id": int(self.user_id),
+                            "time": self.totalTime,
+                            "difficulty": self.difficulty,
+                        },
                     )
                     print("SAVED")
 
                     self.starting_client.need_to_save = False
                 img = end_layout(img, self.score)
 
-            cv2.imshow("Image", img)
+            if testing_nb is not None:  # only for gitub tests :(
+                cv2.imshow("Image", img)
             key = cv2.waitKey(1)
 
             if key == ord("r"):

@@ -137,9 +137,9 @@ async def get_all_games_user(user_id: int, db: Session = Depends(get_db)) -> Opt
 @app.get(
     "/leaderboard/",
     response_model=List[GameRecordOut],
-    description="Récupération des 5 meilleurs scores",
+    description="Récupération des 5 meilleurs scores (points par seconde)",
     tags=["leaderboard"],
 )
-async def get_top5_scores(db: Session = Depends(get_db), nb: int = 5) -> List[models.GameRecord]:
-    top = crud_gr.get_top_nb_score(db=db, nb=nb)
+async def get_top5_point_per_second(db: Session = Depends(get_db), nb: int = 5) -> List[models.GameRecord]:
+    top = crud_gr.get_top_nb_pps(db=db, nb=nb)
     return top

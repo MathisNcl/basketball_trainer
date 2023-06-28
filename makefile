@@ -27,6 +27,9 @@ up: # Up Postgres Docker
 down: # Down Postgres Docker
 	docker-compose down
 
+docker_remove:
+	docker volume rm bball_pgdata
+
 restart: # Restart Postgres Docker
 	docker-compose restart
 

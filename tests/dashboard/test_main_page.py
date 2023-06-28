@@ -1,9 +1,16 @@
+from contextvars import copy_context
 from unittest.mock import patch
 
 import pytest
+import requests_mock
 from bs4 import BeautifulSoup
+from dash._callback_context import context_value
+from dash._utils import AttributeDict
 from dash.testing.application_runners import import_app, wait
 from dash.testing.browser import Browser
+
+from bball_trainer import settings
+from bball_trainer.dashboard.app import show_leaderboard
 
 pytestmark = pytest.mark.slow
 
@@ -135,3 +142,57 @@ def test_sign_in(mock_requests, dash_duo, disable_authentication):
     username_modal.send_keys("2")
     submit_button.click()
     assert not dash_duo.wait_for_no_elements("#signInModal", timeout=2)
+
+
+def test_leaderboard():
+    def run_callback():
+        context_value.set(AttributeDict(**{"triggered": [{"prop_id": "reloadButton.n_clicks"}]}))
+        data = [
+            {
+                "score": 10,
+                "user_id": 1,
+                "difficulty": "Easy",
+                "time": 5,
+                "point_per_sec": 2,
+                "id": 1,
+                "created_at": "2023-06-28T05:28:02.985275",
+            },
+            {
+                "score": 8,
+                "user_id": 2,
+                "difficulty": "Medium",
+                "time": 20,
+                "point_per_sec": 0.4,
+                "id": 2,
+                "created_at": "2023-06-28T05:30:02.985275",
+            },
+        ]
+
+        with requests_mock.Mocker() as m:
+            m.get(f"{settings.URL}/leaderboard/", json=data, status_code=200)
+            return show_leaderboard(False, 1)
+
+    ctx = copy_context()
+    df = ctx.run(run_callback)
+
+    assert len(df) == 2
+    assert df[0] == {
+        "score": 10,
+        "user_id": 1,
+        "difficulty": "Easy",
+        "time": 5,
+        "point_per_sec": 2.0,
+        "id": 1,
+        "created_at": "2023-06-28T05:28:02.985275",
+        "index": 1,
+    }
+    assert df[1] == {
+        "score": 8,
+        "user_id": 2,
+        "difficulty": "Medium",
+        "time": 20,
+        "point_per_sec": 0.4,
+        "id": 2,
+        "created_at": "2023-06-28T05:30:02.985275",
+        "index": 2,
+    }
