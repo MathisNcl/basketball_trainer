@@ -9,7 +9,7 @@ from bball_trainer import settings
 from bball_trainer.game import GamingClient
 from bball_trainer.hand_game import HandsDetectorBasketball
 
-# pytestmark = pytest.mark.slow
+pytestmark = pytest.mark.slow
 
 
 @pytest.mark.parametrize(
