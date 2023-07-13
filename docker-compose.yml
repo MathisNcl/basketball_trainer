@@ -12,9 +12,10 @@ services:
     image: postgres:latest
     container_name: postgres_container
     restart: always
+    ports:
+      - ${POSTGRES_PORT:-5432}:5432
     environment:
       <<: *common_env
-      POSTGRES_HOST: localhost
     volumes:
       - pg_data:/var/lib/postgresql/data
 
@@ -31,6 +32,20 @@ services:
       - postgres
     volumes:
       - .:/app
+  # frontend:
+  #   build:
+  #     context: .
+  #     dockerfile: ./dash.Dockerfile
+  #   environment:
+  #     <<: *common_env
+  #     POSTGRES_HOST: postgres
+  #     API_HOST: api
+  #   ports:
+  #     - '8050:8050'
+  #   depends_on:
+  #     - api
+  #   volumes:
+  #     - .:/app
 
 volumes:
   pg_data:
