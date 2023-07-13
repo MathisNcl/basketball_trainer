@@ -19,7 +19,7 @@ report: # Make report cov
 
 # Docker
 ps: # Show all current Docker
-	docker-compose ps --all		
+	docker-compose ps --all	
 
 up: # Up Postgres Docker
 	docker-compose up -d
@@ -42,7 +42,7 @@ db_shell: # Lunch an interactive shell inside the Docker Postgres
 	docker exec -it postgres_container psql -U ${POSTGRES_USER} -d ${POSTGRES_DBNAME}
 
 # API
-api_run : # Run FastApi main.py
+api_run: # Run FastApi main.py
 	uvicorn src.bball_trainer.api.main:app --reload
 
 # dashboard
@@ -50,4 +50,4 @@ dash_run: # Run Dash app.py
 	python src/bball_trainer/dashboard/app.py
 
 new_terminal: # Open a terminal
-	open -a Terminal 
+	open -a Terminal

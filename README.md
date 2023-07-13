@@ -28,6 +28,7 @@ Have fun!
 
 - Clone repo
 - Create a virtual env in python 3.9 and `make deps`
+  - **Note: if you are using MacOS Ventura,`cv2.imshow` not working (no pop up window).**
 - To run all in local you will need two terminal and docker desktop in your laptop:
   - `make up` to run postgres and api in two docker's containers (you can check it at <http://localhost/8000/docs>)
   - then run `make dash_run` and enjoy at <http://localhost/8050>

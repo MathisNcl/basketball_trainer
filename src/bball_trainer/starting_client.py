@@ -4,6 +4,7 @@ from typing import Any, List
 import cv2
 import numpy as np
 
+from bball_trainer import logger
 from bball_trainer.utils import incrustration
 
 
@@ -27,6 +28,7 @@ class StartingClient:
         self.waiting_for_start: bool = True
         self.timeStart: Any = None
         self.need_to_save: bool = True
+        logger.debug("Waiting for start...")
 
     def starting_layout(self, hands: List[dict], img: np.ndarray) -> np.ndarray:
         """
@@ -77,7 +79,7 @@ class StartingClient:
         if all(self.ready):
             self.timeStart = time.time()
             self.waiting_for_start = False
-            print("Game should begin.")
+            logger.debug("Game should begin.")
 
         return img
 
@@ -86,6 +88,7 @@ class StartingClient:
         self.waiting_for_start = True
         self.timeStart = None
         self.need_to_save = True
+        logger.debug("Waiting for start...")
 
     @staticmethod
     def hand_inside_bbox_detected(bbox_detected: List[int], draw_bbox: tuple[int, int, int, int]) -> bool:
