@@ -1,4 +1,4 @@
-FROM tiangolo/uvicorn-gunicorn:python3.9
+FROM python:3.9-slim
 WORKDIR /app
 COPY api_requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt

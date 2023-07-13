@@ -276,4 +276,4 @@ def show_leaderboard(logout_h: bool, reload_n: int) -> Any:
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True)  # pragma: nocover
+    app.run(debug=False, host="0.0.0.0", port=8050)  # pragma: nocover
