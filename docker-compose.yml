@@ -1,4 +1,6 @@
 # This default compose env allow you to interact locally with PostgreSQL
+version: '1'
+
 services:
 
   postgres:
@@ -6,13 +8,27 @@ services:
     container_name: postgres_container
     restart: always
     environment:
+      POSTGRES_HOST: localhost
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: ${POSTGRES_DBNAME:-postgres}
-    ports:
-      - ${POSTGRES_PORT:-5432}:5432
     volumes:
       - pg_data:/var/lib/postgresql/data
+
+  api:
+    build: .
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_PORT: 5432
+      POSTGRES_DBNAME: ${POSTGRES_DBNAME:-postgres}
+    ports:
+      - '8000:8000'
+    depends_on:
+      - postgres
+    volumes:
+      - .:/app
 
 volumes:
   pg_data:
