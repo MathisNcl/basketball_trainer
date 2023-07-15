@@ -1,3 +1,4 @@
+import logging
 from typing import List
 
 import cv2
@@ -38,7 +39,7 @@ def test_hand_inside_bbox_detected(
     assert StartingClient.hand_inside_bbox_detected(bbox_detected, draw_bbox) == expected
 
 
-def test_starting_layout_wait() -> None:
+def test_starting_layout_wait(caplog) -> None:
     # create a StartingClient object with dummy values
     begin_left = [0, 0]
     begin_right = [0, 0]
@@ -53,15 +54,17 @@ def test_starting_layout_wait() -> None:
     ]
 
     # call the starting_layout method and check the output
-    output = client.starting_layout(hands, img)
+    with caplog.at_level(logging.DEBUG):
+        output = client.starting_layout(hands, img)
     assert isinstance(output, np.ndarray)
     assert isinstance(client.timeStart, float) or client.timeStart is None
     assert isinstance(client.waiting_for_start, bool)
     assert client.waiting_for_start is True
     assert client.timeStart is None
+    assert "Waiting for start" in caplog.text
 
 
-def test_starting_layout_ready() -> None:
+def test_starting_layout_ready(caplog) -> None:
     begin_left = [10, 10]
     begin_right = [150, 10]
     left_hand = np.zeros((20, 20, 4), dtype=np.uint8)
@@ -75,26 +78,31 @@ def test_starting_layout_ready() -> None:
     ]
 
     # call the starting_layout method and check the output
-    output = client.starting_layout(hands, img)
+    with caplog.at_level(logging.DEBUG):
+        output = client.starting_layout(hands, img)
 
     assert isinstance(output, np.ndarray)
     assert isinstance(client.waiting_for_start, bool)
     assert client.waiting_for_start is False
     assert client.timeStart is not None
+    assert "Game should begin" in caplog.text
     # TODO: Check if the bbox are well printed
 
 
-def test_starting_layout_reser() -> None:
+def test_starting_layout_reset(caplog) -> None:
     begin_left = [10, 10]
     begin_right = [150, 10]
     left_hand = np.zeros((20, 20, 4), dtype=np.uint8)
-    client = StartingClient(begin_left, begin_right, left_hand)
+    with caplog.at_level(logging.DEBUG):
+        client = StartingClient(begin_left, begin_right, left_hand)
+        client.waiting_for_start = False
+        client.timeStart = 100
+        client.need_to_save = False
 
-    client.waiting_for_start = False
-    client.timeStart = 100
-    client.need_to_save = False
+        client.reset_client()
 
-    client.reset_client()
+    assert "Waiting for start" in caplog.text
+    assert len(caplog.messages) == 2
 
     assert client.waiting_for_start
     assert client.timeStart is None
