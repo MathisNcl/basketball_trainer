@@ -28,9 +28,12 @@ Have fun!
 
 - Clone repo
 - Create a virtual env in python 3.9 and `make deps`
+  - **Note: if you are using MacOS Ventura,`cv2.imshow` not working (no pop up window).**
 - To run all in local you will need two terminal and docker desktop in your laptop:
-  - `make up_api` to run postgres in docker and launch api (you can check it at <http://localhost/8000/docs>)
-  - in an other terminal, run `make dash_run` and enjoy at <http://localhost/8050>
+  - `make up` to run postgres and api in two docker's containers (you can check it at <http://localhost/8000/docs>)
+  - then run `make dash_run` and enjoy at <http://localhost/8050>
+
+In the future I will add the possibility to use only one `make up` to up all services and I will use a modal maybe to show camera return instead of a pop up window which is anoying me with my OS...
 
 ## Testing Dash
 

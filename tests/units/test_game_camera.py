@@ -1,3 +1,4 @@
+import logging
 import time
 from unittest.mock import MagicMock, patch
 
@@ -20,16 +21,20 @@ pytestmark = pytest.mark.slow
         (45, "Hard", True, 3),
     ],
 )
-def test_gc_start(total_time, difficulty, hand_constraint, user_id):
+def test_gc_start(total_time, difficulty, hand_constraint, user_id, caplog):
     # Mocking camera
     img = np.zeros((720, 1280, 3), dtype=np.uint8)
     capture_mock = MagicMock()
     capture_mock.read.return_value = (True, img)
+
     with patch("cv2.VideoCapture", return_value=capture_mock):
         gc = GamingClient(
             total_time=total_time, difficulty=difficulty, hand_constraint=hand_constraint, user_id=user_id
         )
-        gc.start(testing_nb=1)
+        with caplog.at_level(logging.DEBUG):
+            gc.start(testing_nb=1)
+
+    assert "Game shuts down" in caplog.text
 
 
 def test_gc_points(two_hands):
@@ -50,7 +55,7 @@ def test_gc_points(two_hands):
             assert gc.score >= 1
 
 
-def test_gc_save():
+def test_gc_save(caplog):
     # Mocking camera
     img = np.zeros((720, 1280, 3), dtype=np.uint8)
     capture_mock = MagicMock()
@@ -63,8 +68,12 @@ def test_gc_save():
             gc.starting_client.waiting_for_start = False
 
             assert gc.starting_client.need_to_save is True
-            gc.start(testing_nb=40)
+            with caplog.at_level(logging.DEBUG):
+                gc.start(testing_nb=40)
+
             assert gc.starting_client.need_to_save is False
+
+            assert "Game saved:" in caplog.text
 
 
 def test_gc_restart():

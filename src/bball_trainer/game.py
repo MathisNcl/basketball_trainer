@@ -7,7 +7,7 @@ import numpy as np
 import requests
 import yaml
 
-from bball_trainer import settings
+from bball_trainer import logger, settings
 from bball_trainer.hand_game import HandsDetectorBasketball
 from bball_trainer.random_point import RandomPoint
 from bball_trainer.starting_client import StartingClient
@@ -99,7 +99,6 @@ class GamingClient:
                 # End game
                 if self.starting_client.need_to_save:
                     # save info
-                    # TODO: set a logger and a check for status code == 201
                     requests.post(
                         url=f"{settings.URL}/game_record/",
                         json={
@@ -109,7 +108,7 @@ class GamingClient:
                             "difficulty": self.difficulty,
                         },
                     )
-                    print("SAVED")
+                    logger.info(f"Game saved: (score: {self.score})")
 
                     self.starting_client.need_to_save = False
                 img = end_layout(img, self.score)
@@ -122,6 +121,7 @@ class GamingClient:
                 self.score = 0
                 self.starting_client.reset_client()
             if key == ord("q") or testing_nb is not None and testing_nb == self.nb_img:
+                logger.debug("Game shuts down")
                 break
         self.stop()
 

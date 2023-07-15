@@ -1,7 +1,6 @@
 from subprocess import call
 from typing import Any, Dict, List, Optional
 
-import dash_auth
 import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.graph_objs as go
@@ -14,8 +13,6 @@ from bball_trainer import settings
 from bball_trainer.dashboard import controls, main_page, profile
 
 server = Flask(__name__)
-# FIXME: add a real user managing
-VALID_USERNAME_PASSWORD_PAIRS = {"localadmin": "localadmin"}
 USER_ID: int = 9999999
 app = Dash(
     __name__,
@@ -26,8 +23,6 @@ app = Dash(
     suppress_callback_exceptions=True,
 )
 app.css.config.serve_locally = True
-
-auth = dash_auth.BasicAuth(app, VALID_USERNAME_PASSWORD_PAIRS)
 
 app.layout = html.Div([dbc.Row(id="topPageContent", children=main_page.layout), dbc.Row(id="PageContent")])
 
@@ -276,4 +271,4 @@ def show_leaderboard(logout_h: bool, reload_n: int) -> Any:
 
 
 if __name__ == "__main__":
-    app.run_server(debug=True)  # pragma: nocover
+    app.run(debug=False, host="0.0.0.0", port=8050)  # pragma: nocover

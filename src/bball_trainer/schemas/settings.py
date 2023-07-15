@@ -23,7 +23,12 @@ class Settings(BaseSettings):
 
     SECRET_KEY: str = "abc"
 
-    URL: str = "http://localhost:8000"
+    API_HOST: str = "localhost"
+    URL: Optional[str]
+
+    @validator("URL", pre=True)
+    def assemble_api_url(cls, v: Optional[str], values: dict[str, Any]) -> str:
+        return f"http://{values.get('API_HOST')}:8000"
 
     @validator("POSTGRES_URI", pre=True)
     def assemble_db(cls, v: Optional[str], values: dict[str, Any]) -> str:

@@ -1,18 +1,51 @@
 # This default compose env allow you to interact locally with PostgreSQL
-services:
+version: '3'
+x-common_env:
+  &common_env
+  POSTGRES_USER: ${POSTGRES_USER:-postgres}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+  POSTGRES_DBNAME: ${POSTGRES_DBNAME:-postgres}
+  POSTGRES_PORT: ${POSTGRES_PORT:-5432}
 
+services:
   postgres:
     image: postgres:latest
     container_name: postgres_container
     restart: always
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DBNAME:-postgres}
     ports:
       - ${POSTGRES_PORT:-5432}:5432
+    environment:
+      <<: *common_env
     volumes:
       - pg_data:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: .
+      dockerfile: ./api.Dockerfile
+    environment:
+      <<: *common_env
+      POSTGRES_HOST: postgres
+    ports:
+      - '8000:8000'
+    depends_on:
+      - postgres
+    volumes:
+      - .:/app
+  # frontend:
+  #   build:
+  #     context: .
+  #     dockerfile: ./dash.Dockerfile
+  #   environment:
+  #     <<: *common_env
+  #     POSTGRES_HOST: postgres
+  #     API_HOST: api
+  #   ports:
+  #     - '8050:8050'
+  #   depends_on:
+  #     - api
+  #   volumes:
+  #     - .:/app
 
 volumes:
   pg_data:
