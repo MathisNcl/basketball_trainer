@@ -17,7 +17,7 @@ pytestmark = pytest.mark.slow
 
 @patch("requests.get")
 @patch("requests.post")
-def test_login_logout(mock_requests_post, mock_requests_get, dash_duo: Browser, disable_authentication):
+def test_login_logout(mock_requests_post, mock_requests_get, dash_duo: Browser):
     app = import_app("bball_trainer.dashboard.app")
     dash_duo.start_server(app)
 
@@ -97,7 +97,7 @@ def test_login_logout(mock_requests_post, mock_requests_get, dash_duo: Browser, 
 
 
 @patch("requests.post")
-def test_sign_in(mock_requests, dash_duo, disable_authentication):
+def test_sign_in(mock_requests, dash_duo):
     app = import_app("bball_trainer.dashboard.app")
     dash_duo.start_server(app)
 

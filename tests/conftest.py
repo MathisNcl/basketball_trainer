@@ -1,5 +1,4 @@
 from typing import Generator
-from unittest.mock import MagicMock
 
 import pytest
 from sqlalchemy.engine import Engine
@@ -148,13 +147,3 @@ def session_db(test_engine) -> Generator[Session, None, None]:
 @pytest.fixture
 def test_client(session_db) -> TestClient:
     yield TestClient(app)
-
-
-@pytest.fixture
-def disable_authentication(monkeypatch):
-    basic_auth_mock = MagicMock()
-    monkeypatch.setattr("dash_auth.BasicAuth", basic_auth_mock)
-
-    basic_auth_mock.return_value.is_authorized.return_value = True
-
-    yield
