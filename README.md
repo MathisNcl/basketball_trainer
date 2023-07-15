@@ -33,6 +33,8 @@ Have fun!
   - `make up` to run postgres and api in two docker's containers (you can check it at <http://localhost/8000/docs>)
   - then run `make dash_run` and enjoy at <http://localhost/8050>
 
+In the future I will add the possibility to use only one `make up` to up all services and I will use a modal maybe to show camera return instead of a pop up window which is anoying me with my OS...
+
 ## Testing Dash
 
 In order to test dash app, you will have to download a ChromeDriver from [here](https://chromedriver.chromium.org/downloads). For Max OSX users, follow instructions:
