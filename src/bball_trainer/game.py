@@ -64,41 +64,43 @@ class GamingClient:
         self.cap.set(3, self.config["cam"]["h"])
         self.cap.set(4, self.config["cam"]["v"])
 
-    def start(self, testing_nb: Optional[bool] = None) -> None:
-        """Start the game by reading camera output"""
+    def process_img(self, img: np.ndarray) -> np.ndarray:
+        """Process the image to add starting client or circles or end
 
-        self.turn_on_camera()
-        # Loop
-        while True:
-            _, img = self.cap.read()
-            self.nb_img += 1
-            img: np.ndarray = cv2.flip(img, 1)  # type: ignore
+        Args:
+            img (np.ndarray):
 
-            hands: List[dict] = self.detector.findHands(img, draw=False, flipType=False)
-            if self.starting_client.waiting_for_start:
-                img = self.starting_client.starting_layout(hands, img)
+        Returns:
+            np.ndarray: final image with right layout
+        """
+        img = cv2.flip(img, 1)  # type: ignore
 
-            elif time.time() - self.starting_client.timeStart < self.totalTime:
-                self.hand_handler(hands, img)
+        hands: List[dict] = self.detector.findHands(img, draw=False, flipType=False)
+        if self.starting_client.waiting_for_start:
+            img = self.starting_client.starting_layout(hands, img)
 
-                self.counter_difficulty_handler()
+        elif time.time() - self.starting_client.timeStart < self.totalTime:
+            self.hand_handler(hands, img)
 
-                # Game HUD
-                cvzone.putTextRect(
-                    img,
-                    f"Time: {int(self.totalTime-(time.time()-self.starting_client.timeStart))}",
-                    (1000, 75),
-                    scale=3,
-                    offset=20,
-                )
-                cvzone.putTextRect(img, f"Score: {str(self.score).zfill(2)}", (60, 75), scale=3, offset=20)
+            self.counter_difficulty_handler()
 
-                # Draw Button
-                self.point.draw_circle(img, self.color)
-            else:
-                # End game
-                if self.starting_client.need_to_save:
-                    # save info
+            # Game HUD
+            cvzone.putTextRect(
+                img,
+                f"Time: {int(self.totalTime-(time.time()-self.starting_client.timeStart))}",
+                (1000, 75),
+                scale=3,
+                offset=20,
+            )
+            cvzone.putTextRect(img, f"Score: {str(self.score).zfill(2)}", (60, 75), scale=3, offset=20)
+
+            # Draw Circle
+            self.point.draw_circle(img, self.color)
+        else:
+            # End game
+            if self.starting_client.need_to_save:
+                # save info
+                try:
                     requests.post(
                         url=f"{settings.URL}/game_record/",
                         json={
@@ -109,9 +111,22 @@ class GamingClient:
                         },
                     )
                     logger.info(f"Game saved: (score: {self.score})")
+                except Exception as e:
+                    logger.error(f"Error while saving: {e}")
 
-                    self.starting_client.need_to_save = False
-                img = end_layout(img, self.score)
+                self.starting_client.need_to_save = False
+            img = end_layout(img, self.score)
+        return img
+
+    def start_entire_game(self, testing_nb: Optional[bool] = None) -> None:
+        """Start the game by reading camera output"""
+
+        self.turn_on_camera()
+        # Loop
+        while True:
+            _, img = self.cap.read()
+            self.nb_img += 1
+            img = self.process_img(img)
 
             if testing_nb is not None:  # only for gitub tests :(
                 cv2.imshow("Image", img)
@@ -180,7 +195,7 @@ if __name__ == "__main__":  # pragma: nocover
         description="Basketball game", formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument("-u", "--user-id", help="User id", default=1)
-    parser.add_argument("-t", "--total-time", help="Game time", default=30)
+    parser.add_argument("-t", "--total-time", help="Game time", default=2)
     parser.add_argument(
         "-d", "--difficulty", help="Game difficulty", default="Hard", choices=["Easy", "Medium", "Hard"]
     )
@@ -195,4 +210,4 @@ if __name__ == "__main__":  # pragma: nocover
         bool(config_args["hand_constraint"]),
         int(config_args["user_id"]),
     )  # pragma: nocover
-    game.start()
+    game.start_entire_game()

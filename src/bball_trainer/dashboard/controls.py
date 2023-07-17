@@ -1,6 +1,26 @@
 import dash_bootstrap_components as dbc
 import dash_daq as daq
 from dash import dcc, html
+from dash_extensions import WebSocket
+
+game_modal = dbc.Modal(
+    [
+        dbc.ModalBody(html.Img(id="img_game", className="image")),
+        dbc.ModalFooter(
+            [
+                dbc.Button(
+                    "Restart",
+                    id="button_restart",
+                    className="btn btn-primary",
+                ),
+                dbc.Button("Stop", id="button_stop", className="btn btn-danger"),
+            ]
+        ),
+    ],
+    id="modal_game",
+    centered=False,
+    className="modal-dialog image-modal-dialog",
+)
 
 layout = dbc.Card(
     [
@@ -38,6 +58,8 @@ layout = dbc.Card(
                     id="startingButton",
                     className="btn btn-warning",
                 ),
+                WebSocket(url="ws://127.0.0.1:5000/stream", id="ws"),
+                game_modal,
             ],
             style={"textAlign": "center"},
         ),

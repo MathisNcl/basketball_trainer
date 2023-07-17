@@ -82,6 +82,5 @@ def end_layout(img: np.ndarray, score: int) -> np.ndarray:
     """
     cvzone.putTextRect(img, "Game Over", (400, 400), scale=5, offset=30, thickness=7)
     cvzone.putTextRect(img, f"Your Score: {score}", (450, 500), scale=3, offset=20)
-    cvzone.putTextRect(img, "Press R to restart", (460, 575), scale=2, offset=10)
 
     return img

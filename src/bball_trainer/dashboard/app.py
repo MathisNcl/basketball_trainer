@@ -1,6 +1,9 @@
-from subprocess import call
+import asyncio
+import base64
+import threading
 from typing import Any, Dict, List, Optional
 
+import cv2
 import dash_bootstrap_components as dbc
 import pandas as pd
 import plotly.graph_objs as go
@@ -8,9 +11,13 @@ import requests
 from dash import Dash, Input, Output, State, ctx, dash_table, dcc, html
 from dash.exceptions import PreventUpdate
 from flask import Flask
+from quart import Quart, websocket
 
-from bball_trainer import settings
+from bball_trainer import logger, settings
 from bball_trainer.dashboard import controls, main_page, profile
+from bball_trainer.game import GamingClient
+
+gaming_client = None
 
 server = Flask(__name__)
 USER_ID: int = 9999999
@@ -25,6 +32,35 @@ app = Dash(
 app.css.config.serve_locally = True
 
 app.layout = html.Div([dbc.Row(id="topPageContent", children=main_page.layout), dbc.Row(id="PageContent")])
+
+# Setup small Quart server for streaming via websocket
+# @see: https://community.plotly.com/t/does-dash-support-opencv-video-from-webcam/11012/9 -> Emil's answer
+stream_server = Quart(__name__)
+delay_between_frames = 0.05
+
+
+@stream_server.websocket("/stream")
+async def stream() -> None:
+    global gaming_client
+    while True:
+        if gaming_client is not None:
+            try:
+                if delay_between_frames is not None:
+                    await asyncio.sleep(delay_between_frames)
+                _, img = gaming_client.cap.read()
+                img = gaming_client.process_img(img)
+
+                _, jpeg = cv2.imencode(".jpg", img)
+                await websocket.send(f"data:image/jpeg;base64, {base64.b64encode(jpeg.tobytes()).decode()}")
+            except AttributeError:
+                # gaming client is instancied but the camera is not yet turned on. Wait for launch.
+                pass
+            except Exception as e:
+                logger.warning(f"another error occured: {e}")
+
+
+# Copy data from websocket to Img element.
+app.clientside_callback("function(m){return m? m.data : '';}", Output("img_game", "src"), Input("ws", "message"))
 
 
 ################################################################################
@@ -172,23 +208,40 @@ def display_card_infos(logoutButton: bool, username: str) -> Any:
 # Run the game
 ################################################################################
 @app.callback(
-    Output("useless", "children"),
-    [Input("startingButton", "n_clicks")],
+    [Output("ws", "url"), Output("modal_game", "is_open")],
+    [Input("startingButton", "n_clicks"), Input("button_restart", "n_clicks"), Input("button_stop", "n_clicks")],
     [
         State("game-time", "value"),
         State("game-difficulty", "value"),
         State("game-hand-constraint-switch", "on"),
     ],
 )
-def launch_game(n_start: int, time: int, difficulty: str, hand_constraint: bool) -> str:
-    # FIXME: find a way to test it
+def launch_game(
+    n_start: int, n_restart: int, n_stop: int, time: int, difficulty: str, hand_constraint: bool
+) -> tuple[Optional[str], bool]:
+    global gaming_client
     if ctx.triggered_id == "startingButton":  # pragma: nocover
-        script_path = settings.PACKAGE_DIR / "game.py"
-        call(
-            ["python3", script_path, "-u", str(USER_ID), "-t", str(time), "-d", difficulty, "-hc", str(hand_constraint)]
+        if gaming_client is None:
+            gaming_client = GamingClient(time, difficulty, hand_constraint, USER_ID)
+            gaming_client.turn_on_camera()
+        return (
+            "ws://127.0.0.1:5000/stream",
+            True,
         )
 
-    return ""
+    if ctx.triggered_id == "button_restart" and gaming_client is not None:
+        gaming_client.score = 0
+        gaming_client.starting_client.reset_client()
+        return (
+            "ws://127.0.0.1:5000/stream",
+            True,
+        )
+
+    if ctx.triggered_id == "button_stop" and gaming_client is not None:
+        gaming_client.stop()
+        del gaming_client
+        gaming_client = None
+    return (None, False)
 
 
 ################################################################################
@@ -270,5 +323,6 @@ def show_leaderboard(logout_h: bool, reload_n: int) -> Any:
         raise PreventUpdate
 
 
-if __name__ == "__main__":
-    app.run(debug=False, host="0.0.0.0", port=8050)  # pragma: nocover
+if __name__ == "__main__":  # pragma: nocover
+    threading.Thread(target=app.run, kwargs={"debug": False, "host": "0.0.0.0", "port": 8050}).start()
+    stream_server.run()
