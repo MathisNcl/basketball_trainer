@@ -23,6 +23,7 @@ Have fun!
 - [X] leaderboard
 - [ ] track the ball
 - [X] game settings (difficulty and hand constraint)
+- [X] game webcam in a modal
 
 ## Installation
 
@@ -59,3 +60,5 @@ Non exhaustive list of useful help :
 - <https://dev.to/ghost/implementing-sqlalchemy-with-docker-18c9>
 - <https://dev.to/kaelscion/authentication-hashing-in-sqlalchemy-1bem>
 - <https://docs.sqlalchemy.org/>
+- <https://community.plotly.com/t/does-dash-support-opencv-video-from-webcam/11012/14>
+- <https://community.plotly.com/t/make-bootstrap-modal-bigger-than-xl/39727/3>
