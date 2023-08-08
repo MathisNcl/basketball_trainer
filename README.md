@@ -15,15 +15,19 @@ Have fun!
 - [X] tox
 - [X] 100% coverage (*Not exactly what I wanted, should be improved in another version with raising error and exhaustive cases*)
 - [X] Oriented objects
-- [ ] bonus points
 - [X] github actions
 - [X] save data
 - [X] fastapi
 - [X] dashboard
 - [X] leaderboard
-- [ ] track the ball
 - [X] game settings (difficulty and hand constraint)
 - [X] game webcam in a modal
+
+## Possible enhancement
+
+- [ ] track the ball
+- [ ] bonus points
+- [ ] test async
 
 ## Installation
 
