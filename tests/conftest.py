@@ -7,6 +7,7 @@ from starlette.testclient import TestClient
 
 from bball_trainer import settings
 from bball_trainer.api.main import app
+from bball_trainer.dashboard.app import stream_server
 from bball_trainer.models import Base
 from bball_trainer.models.database import SessionScoped
 from tests.utils.db import configure_sessionmakers, init_db
@@ -147,3 +148,8 @@ def session_db(test_engine) -> Generator[Session, None, None]:
 @pytest.fixture
 def test_client(session_db) -> TestClient:
     yield TestClient(app)
+
+
+@pytest.fixture
+def quart_client():
+    yield stream_server.test_client()

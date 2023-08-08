@@ -1,6 +1,7 @@
 from contextvars import copy_context
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
+import numpy as np
 import pytest
 import requests_mock
 from bs4 import BeautifulSoup
@@ -8,6 +9,7 @@ from dash._callback_context import context_value
 from dash._utils import AttributeDict
 from dash.testing.application_runners import import_app, wait
 from dash.testing.browser import Browser
+from selenium.common.exceptions import StaleElementReferenceException
 
 from bball_trainer import settings
 from bball_trainer.dashboard.app import show_leaderboard
@@ -142,6 +144,67 @@ def test_sign_in(mock_requests, dash_duo):
     username_modal.send_keys("2")
     submit_button.click()
     assert not dash_duo.wait_for_no_elements("#signInModal", timeout=2)
+
+
+@patch("requests.post")
+def test_running_game(mock_requests_post, dash_duo: Browser, quart_client):
+    app = import_app("bball_trainer.dashboard.app")
+    dash_duo.start_server(app)
+
+    # start tests
+    assert dash_duo.wait_for_element_by_id("usernameBox", timeout=10)
+    # get elements
+    username_input = dash_duo.find_element("#usernameBox")
+    password_input = dash_duo.find_element("#passwordBox")
+    assert username_input.text == ""
+    assert password_input.text == ""
+
+    login_button = dash_duo.find_element("#loginButton")
+    assert login_button.is_displayed()
+    logout_button = dash_duo.find_element("#logoutButton")
+    assert not logout_button.is_displayed()
+
+    # connect
+    username_input.send_keys("localadmin")
+    password_input.send_keys("dummy")
+    mock_response = mock_requests_post.return_value
+    mock_response.status_code = 202
+    mock_response.json.return_value = {"id": 1, "pseudo": "localadmin", "connected": True}
+    login_button.click()
+
+    # check buttons
+    wait.until(lambda: logout_button.is_displayed(), timeout=5)
+
+    # get button to start game
+    starting_button = dash_duo.wait_for_element_by_id("startingButton", timeout=5)
+    assert starting_button
+    # mocking cv2
+    img = np.zeros((720, 1280, 3), dtype=np.uint8)
+    capture_mock = MagicMock()
+    capture_mock.read.return_value = (True, img)
+
+    # TODO: improve testing... not enough deep
+    with patch("cv2.VideoCapture", return_value=capture_mock):
+        starting_button.click()
+
+        modal_game = dash_duo.wait_for_element_by_id("modal_game", timeout=5)
+        assert modal_game
+        assert modal_game.is_displayed()
+
+        img_game = dash_duo.wait_for_element_by_id("img_game", timeout=5)
+        assert img_game
+
+        button_restart = dash_duo.wait_for_element_by_id("button_restart", timeout=5)
+        assert button_restart
+        button_stop = dash_duo.wait_for_element_by_id("button_stop", timeout=5)
+        assert button_stop
+
+        button_restart.click()
+        assert modal_game.is_displayed()
+
+        button_stop.click()
+        with pytest.raises(StaleElementReferenceException):
+            wait.until(lambda: not button_restart.is_displayed(), timeout=5)
 
 
 def test_leaderboard():

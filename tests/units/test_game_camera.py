@@ -32,7 +32,7 @@ def test_gc_start(total_time, difficulty, hand_constraint, user_id, caplog):
             total_time=total_time, difficulty=difficulty, hand_constraint=hand_constraint, user_id=user_id
         )
         with caplog.at_level(logging.DEBUG):
-            gc.start(testing_nb=1)
+            gc.start_entire_game(testing_nb=1)
 
     assert "Game shuts down" in caplog.text
 
@@ -51,7 +51,7 @@ def test_gc_points(two_hands):
         with patch.object(HandsDetectorBasketball, "findHands", return_value=two_hands):
             gc.point.cx = 140
             gc.point.cy = 300
-            gc.start(testing_nb=10)
+            gc.start_entire_game(testing_nb=10)
             assert gc.score >= 1
 
 
@@ -69,11 +69,29 @@ def test_gc_save(caplog):
 
             assert gc.starting_client.need_to_save is True
             with caplog.at_level(logging.DEBUG):
-                gc.start(testing_nb=40)
+                gc.start_entire_game(testing_nb=40)
 
             assert gc.starting_client.need_to_save is False
 
             assert "Game saved:" in caplog.text
+
+
+def test_gc_save_error(caplog):
+    # Mocking camera
+    img = np.zeros((720, 1280, 3), dtype=np.uint8)
+    capture_mock = MagicMock()
+    capture_mock.read.return_value = (True, img)
+    with patch("cv2.VideoCapture", return_value=capture_mock):
+        with requests_mock.Mocker() as m:
+            m.post(f"{settings.URL}/game_record/", exc=KeyError)  # error doesn't matter
+            gc = GamingClient(total_time=1, difficulty="Easy", hand_constraint=False, user_id=1)
+            gc.starting_client.timeStart = time.time()
+            gc.starting_client.waiting_for_start = False
+
+            with caplog.at_level(logging.DEBUG):
+                gc.start_entire_game(testing_nb=40)
+
+            assert "Error while saving" in caplog.text
 
 
 def test_gc_restart():
@@ -87,7 +105,7 @@ def test_gc_restart():
         gc.starting_client.waiting_for_start = False
         gc.score = 10
         with patch("cv2.waitKey", return_value=ord("r")):
-            gc.start(testing_nb=10)
+            gc.start_entire_game(testing_nb=10)
             assert gc.score == 0
             assert gc.starting_client.waiting_for_start is True
             assert gc.starting_client.timeStart is None
