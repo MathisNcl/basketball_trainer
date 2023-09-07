@@ -64,7 +64,7 @@ jobs:
       - name: Install Chrome Driver
         run: |
           wget https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/116.0.5845.96/linux64/chromedriver-linux64.zip
-          unzip chromedriver_linux64.zip
+          unzip chromedriver-linux64.zip
           sudo mv chromedriver /usr/local/bin/
       - name: Test
         run: pytest -m "not slow" -v --cov=src --cov-report xml
