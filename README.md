@@ -1,4 +1,5 @@
 ![Version](https://img.shields.io/badge/python-3.9-brightgreen)
+[![Coverage Status](https://coveralls.io/repos/github/MathisNcl/basketball_trainer/badge.svg?branch=master)](https://coveralls.io/github/MathisNcl/basketball_trainer?branch=master)
 
 # Basket-ball trainer
 

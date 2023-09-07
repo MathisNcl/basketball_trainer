@@ -46,7 +46,7 @@ def test_get_games_unknown_id(test_client):
 def test_leaderboard(test_client):
     u_list = [UserFactory(game=True) for i in range(10)]
 
-    g = GameRecordFactory(user_id=u_list[0].id, score=60, time=3)
+    g = GameRecordFactory(user_id=u_list[0].id, score=300, time=3)
 
     response = test_client.get(url="leaderboard/")
 
@@ -54,10 +54,10 @@ def test_leaderboard(test_client):
 
     data = response.json()
     assert len(data) == 5
-    assert data[0]["score"] == 60
+    assert data[0]["score"] == 300
     assert data[0]["user_id"] == u_list[0].id
     assert data[0]["time"] == 3
-    assert data[0]["point_per_sec"] == 20
+    assert data[0]["point_per_sec"] == 100
     assert data[0]["difficulty"] == g.difficulty
 
 

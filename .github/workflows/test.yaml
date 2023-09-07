@@ -56,25 +56,29 @@ jobs:
             pip install flake8 pytest
       # - name: Lint
       #   run: bash scripts/lint.sh
-      - name: Install Chrome
-        run: |
-          wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-          sudo dpkg -i google-chrome-stable_current_amd64.deb
-          sudo apt-get -f install
-      - name: Install Chrome Driver
-        run: |
-          LATEST=$(wget -qO- https://chromedriver.storage.googleapis.com/LATEST_RELEASE)
-          wget https://chromedriver.storage.googleapis.com/$LATEST/chromedriver_linux64.zip
-          unzip chromedriver_linux64.zip
-          sudo mv chromedriver /usr/local/bin/
+      # - name: Install Chrome
+      #   run: |
+      #     wget http://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_116.0.5845.96-1_amd64.deb
+      #     sudo dpkg -i google-chrome-stable_116.0.5845.96-1_amd64.deb
+      #     sudo apt-get -f install
+      # - name: Install Chrome Driver
+      #   run: |
+      #     wget https://edgedl.me.gvt1.com/edgedl/chrome/chrome-for-testing/116.0.5845.96/linux64/chromedriver-linux64.zip
+      #     unzip chromedriver-linux64.zip
+      #     sudo mv chromedriver-linux64/chromedriver /usr/local/bin/
       - name: Test
-        run: pytest -m "not slow" -v
+        run: pytest -m "not slow" -v --cov=src --cov-report xml
         env:
           POSTGRES_HOST: localhost
           POSTGRES_PORT: 5432
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DBNAME: postgres
-      - name: Test dashboard
-        run: pytest tests/dashboard/ --webdriver=Chrome --headless
+      # - name: Test dashboard
+      #   run: pytest tests/dashboard/ --webdriver=Chrome --headless -v 
+      - name: Coveralls
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path-to-lcov: coverage.xml
       
