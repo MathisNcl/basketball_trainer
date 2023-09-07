@@ -9,26 +9,7 @@ You have 30seconds to touch most circles with your hands.
 
 Have fun!
 
-## Roadmap
-
-- [X] V0 : functional game
-- [X] tests
-- [X] tox
-- [X] 100% coverage (*Not exactly what I wanted, should be improved in another version with raising error and exhaustive cases*)
-- [X] Oriented objects
-- [X] github actions
-- [X] save data
-- [X] fastapi
-- [X] dashboard
-- [X] leaderboard
-- [X] game settings (difficulty and hand constraint)
-- [X] game webcam in a modal
-
-## Possible enhancement
-
-- [ ] track the ball
-- [ ] bonus points
-- [ ] test async
+![demo.gif](demo_bball.gif)
 
 ## Installation
 
@@ -67,3 +48,24 @@ Non exhaustive list of useful help :
 - <https://docs.sqlalchemy.org/>
 - <https://community.plotly.com/t/does-dash-support-opencv-video-from-webcam/11012/14>
 - <https://community.plotly.com/t/make-bootstrap-modal-bigger-than-xl/39727/3>
+
+## Roadmap
+
+- [X] V0 : functional game
+- [X] tests
+- [X] tox
+- [X] 100% coverage (*Not exactly what I wanted, should be improved in another version with raising error and exhaustive cases*)
+- [X] Oriented objects
+- [X] github actions
+- [X] save data
+- [X] fastapi
+- [X] dashboard
+- [X] leaderboard
+- [X] game settings (difficulty and hand constraint)
+- [X] game webcam in a modal
+
+## Possible enhancement
+
+- [ ] track the ball
+- [ ] bonus points
+- [ ] test async
