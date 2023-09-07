@@ -76,7 +76,7 @@ jobs:
       #     POSTGRES_PASSWORD: postgres
       #     POSTGRES_DBNAME: postgres
       - name: Tests
-        run: pytest tests/dashboard/ --webdriver=Chrome --headless -v --cov=src --cov-report xml
+        run: pytest --webdriver=Chrome --headless -v --cov=src --cov-report xml
         env:
               POSTGRES_HOST: localhost
               POSTGRES_PORT: 5432
