@@ -67,15 +67,15 @@ jobs:
           unzip chromedriver-linux64.zip
           sudo mv chromedriver-linux64/chromedriver /usr/local/bin/
       - name: Test
-        run: pytest -m "not slow" -v --cov=src --cov-report xml
+        run: pytest -m "not slow" --webdriver=Chrome --headless -v --cov=src --cov-report xml
         env:
           POSTGRES_HOST: localhost
           POSTGRES_PORT: 5432
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DBNAME: postgres
-      - name: Test dashboard
-        run: pytest tests/dashboard/ --webdriver=Chrome --headless -v 
+      # - name: Test dashboard
+      #   run: pytest tests/dashboard/ --webdriver=Chrome --headless -v 
       - name: Coveralls
         uses: coverallsapp/github-action@v2
         with:

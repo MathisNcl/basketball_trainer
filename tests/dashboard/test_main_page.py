@@ -14,8 +14,6 @@ from selenium.common.exceptions import StaleElementReferenceException
 from bball_trainer import settings
 from bball_trainer.dashboard.app import show_leaderboard
 
-pytestmark = pytest.mark.slow
-
 
 @patch("requests.get")
 @patch("requests.post")
